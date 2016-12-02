@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+        </Console>
+        <!--所有的日志按照天输出到文件系统-->
+        <RollingRandomAccessFile name="file" append="true" fileName="logs/log.txt" filePattern="logs/${date:yyyy}/${date:MM}/%d{dd}.txt">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            <DefaultRolloverStrategy fileIndex="max"/>
+        </RollingRandomAccessFile>
+        <!--所有的错误级别的日志单独再输出到文件系统-->
+        <RollingRandomAccessFile name="error_file" append="true" fileName="logs/error_log.txt" filePattern="logs/error/%i.txt">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+            <SizeBasedTriggeringPolicy size="10MB"/>
+            <DefaultRolloverStrategy fileIndex="max"/>
+            <ThresholdFilter level="ERROR"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Root level="ALL">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="error_file"/>
+        </Root>
+    </Loggers>
+</Configuration>
