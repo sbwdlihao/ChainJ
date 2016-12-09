@@ -30,6 +30,7 @@ public class UtilTest {
     byte[] salt = {3,4,5};
     byte[] selt = {7,8};
     byte[] out = Util.hashKeySaltSelector((byte)0, key, salt, selt);
+    Assert.assertNotNull(out);
     Assert.assertEquals(64, out.length);
     Assert.assertEquals(96, out[0] & 0xff);
     Assert.assertEquals(157, out[63] & 0xff);

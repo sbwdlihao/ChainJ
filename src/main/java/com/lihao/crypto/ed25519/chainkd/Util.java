@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -69,8 +70,11 @@ public class Util {
 
     static byte[] hashKeySaltSelector(byte version, byte[] key, byte[] salt, byte[] sel) {
         MessageDigest helper = hashKeySaltHelper(version, key, salt);
+        if (helper == null) {
+            return null;
+        }
         byte[] l = new byte[10];
-        int n = VarInt.putUvarint(l, sel.length);
+        int n = VarInt.putUVarInt(l, new BigInteger(String.valueOf(sel.length)));
         helper.update(l, 0, n);
         helper.update(sel);
         byte[] out = helper.digest();
@@ -80,6 +84,9 @@ public class Util {
 
     static byte[] hashKeySalt(byte version, byte[] key, byte[] salt) {
         MessageDigest helper = hashKeySaltHelper(version, key, salt);
+        if (helper == null) {
+            return null;
+        }
         return helper.digest();
     }
 

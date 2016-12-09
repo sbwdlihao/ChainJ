@@ -1,48 +1,50 @@
 package com.lihao.encoding;
 
+import java.math.BigInteger;
+
 /**
  * Created by sbwdlihao on 11/28/16.
  */
 public class VarInt {
 
-    // golang中的PutUVarint支持的数值是从0到0xffffffffffffffff，而java中的支持的数值是0到0x7fffffffffffffff
-    public static int putUvarint(byte[] buf, long x) {
+    private static BigInteger b128 = new BigInteger("128");
+    private static BigInteger b127 = new BigInteger("127");
+    private static BigInteger b1 = new BigInteger("1");
+
+    public static int putUVarInt(byte[] buf, BigInteger x) {
         if (buf == null) {
             throw new IllegalArgumentException("buf cannot be null");
         }
-        if (x < 0) {
-            throw new IllegalArgumentException("x must be unsigned long");
-        }
         int i = 0;
-        while (x >= 0x80) { // 0x80 = 128 = 0b10000000
+        while (x.compareTo(b128) != -1) { // x >= 0x80
             if (buf.length <= i) {
                 throw new IllegalArgumentException("buf size is too small");
             }
-            buf[i++] = (byte) (x | 0x80);
-            x >>= 7;
+            buf[i++] = x.or(b128).byteValue();
+            x = x.shiftRight(7);
         }
         if (buf.length <= i) {
             throw new IllegalArgumentException("buf size is too small");
         }
-        buf[i] = (byte) x;
+        buf[i] = x.byteValue();
         return i + 1;
     }
 
-    public static long uvarint(byte[] buf) {
+    public static BigInteger uVarInt(byte[] buf) {
         if (buf == null || buf.length == 0) {
             throw new IllegalArgumentException("buf cannot be empty");
         }
-        long x = 0;
-        long s = 0;
+        BigInteger x = new BigInteger("0");
+        int s = 0;
         for (int i = 0; i < buf.length; i++) {
-            byte b = buf[i];
-            if (b >= 0) { // 0x00~0x7f
-                if (i > 9 || i == 9 && b > 1) {
+            BigInteger b = new BigInteger(String.valueOf(buf[i] & 0xff));
+            if (b.compareTo(b128) == -1) { // b < 0x80
+                if (i > 9 || i == 9 && b.compareTo(b1) == 1) {
                     throw new IllegalArgumentException("var is too large");
                 }
-                return x | (long) b << s;
+                return x.or(b.shiftLeft(s));
             }
-            x |= (long) (b & 0x7f) << s;
+            x = x.or(b.and(b127).shiftLeft(s));
             s += 7;
         }
         return x;
