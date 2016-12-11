@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -74,7 +73,7 @@ public class Util {
             return null;
         }
         byte[] l = new byte[10];
-        int n = VarInt.putUVarInt(l, new BigInteger(String.valueOf(sel.length)));
+        int n = VarInt.putUVarInt(l, sel.length);
         helper.update(l, 0, n);
         helper.update(sel);
         byte[] out = helper.digest();
