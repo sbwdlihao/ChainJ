@@ -11,59 +11,65 @@ import java.io.OutputStream;
  */
 public class BlockChain {
 
-    public static int readVarInt31(InputStream io) throws IOException {
-        long val = VarInt.readUVarInt(io);
+    public static int readVarInt31(InputStream in, int[] nOut) throws IOException {
+        long val = VarInt.readUVarInt(in, nOut);
         if (val > Integer.MAX_VALUE || val < 0) {
             throw new ArithmeticException("value out of range");
         }
         return (int)val; // 返回的结果在0到2^31 - 1之间，所以用int表示没有问题
     }
 
-    public static long readVarInt63(InputStream io) throws IOException {
-        long val = VarInt.readUVarInt(io);
+    public static long readVarInt63(InputStream in, int[] nOut) throws IOException {
+        long val = VarInt.readUVarInt(in, nOut);
         if (val < 0) {
             throw new ArithmeticException("value out of range");
         }
         return val;
     }
 
-    public static byte[] readVarStr31(InputStream io) throws IOException {
-        int n = readVarInt31(io);
-        if (n == 0) {
-            return null;
+    public static byte[] readVarStr31(InputStream in, int[] nOut) throws IOException {
+        int n = readVarInt31(in, nOut);
+        byte[] str = new byte[n]; // 当n=0时，返回一个长度为0的字节数组
+        if (n > 0 && in.read(str) != n) {
+            throw new IOException("cannot readFull full val");
         }
-        byte[] str = new byte[n];
-        if (io.read(str) != n) {
-            throw new IOException("cannot read full val");
+        if (nOut != null && nOut.length > 0) {
+            nOut[0] += n;
         }
         return str;
     }
 
-    public static int writeVarInt31(OutputStream io, long val) throws IOException {
+    public static int writeVarInt31(OutputStream out, long val) throws IOException {
         if (val > Integer.MAX_VALUE || val < 0) {
             throw new ArithmeticException("value out of range");
         }
         // 0到0x7fffffff之间的数经过转换后最多会产生5个字节
         byte[] buf = new byte[5];
         int n = VarInt.putUVarInt(buf, val);
-        io.write(buf, 0, n);
+        out.write(buf, 0, n);
         return n;
     }
 
-    public static int writeVarInt63(OutputStream io, long val) throws IOException {
+    public static int writeVarInt63(OutputStream out, long val) throws IOException {
         if (val < 0) {
             throw new ArithmeticException("value out of range");
         }
         // 0到0x7fffffffffffffff之间的数经过转换后最多会产生9个字节
         byte[] buf = new byte[9];
         int n = VarInt.putUVarInt(buf, val);
-        io.write(buf, 0, n);
+        out.write(buf, 0, n);
         return n;
     }
 
     public static int writeVarStr31(OutputStream io, byte[] str) throws IOException {
-        int n = writeVarInt31(io, str.length);
-        io.write(str);
-        return n + str.length;
+        int length = 0;
+        if (str != null) {
+            length = str.length;
+        }
+        int n = writeVarInt31(io, length);
+        if (str != null) {
+            io.write(str);
+        }
+        return n + length;
     }
 }

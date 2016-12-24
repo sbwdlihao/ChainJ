@@ -24,7 +24,7 @@ public class VarInt {
         if (buf.length <= i) {
             throw new IllegalArgumentException("buf size is too small");
         }
-        buf[i] = (byte)x; // 最后一个byte的数值在1到127之间
+        buf[i] = (byte)x; // 最后一个byte的数值在0到127之间
         return i + 1;
     }
 
@@ -37,7 +37,7 @@ public class VarInt {
         int s = 0;
         for (int i = 0; i < buf.length; i++) {
             byte b = buf[i];
-            if (b > 0) { // 表示最后产生的数值
+            if (b >= 0) { // 表示最后产生的数值
                 if (i > 9 || i == 9 && b > 1) { // unsigned int64的最大值转换成字节数组后长度是10且最后1个字节值是1
                     throw new IllegalArgumentException("var is too large");
                 }
@@ -51,18 +51,21 @@ public class VarInt {
     }
 
     // 如果返回long小于0，则表示得到真实数字在2^63到2^64-1之间
-    public static long readUVarInt(InputStream io) throws IOException {
+    public static long readUVarInt(InputStream in, int[] nOut) throws IOException {
         long x = 0;
         int s = 0;
         byte b;
         int i = 0;
         do {
-            int bi = io.read();
+            int bi = in.read();
             if (bi == -1) {
                 break;
             }
+            if (nOut != null && nOut.length > 0) {
+                nOut[0]++;
+            }
             b = (byte)bi;
-            if (b > 0) { // 表示最后产生的数值
+            if (b >= 0) { // 表示最后产生的数值
                 if (i > 9 || i == 9 && b > 1) { // unsigned int64的最大值转换成字节数组后长度是10且最后1个字节值是1
                     throw new IllegalArgumentException("var is too large");
                 }

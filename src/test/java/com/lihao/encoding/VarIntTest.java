@@ -49,7 +49,9 @@ public class VarIntTest {
             byte[] buf = new byte[10];
             VarInt.putUVarInt(buf, test);
             Assert.assertEquals(test, VarInt.uVarInt(buf));
-            Assert.assertEquals(test, VarInt.readUVarInt(new ByteArrayInputStream(buf)));
+            int[] n = new int[1];
+            long v = VarInt.readUVarInt(new ByteArrayInputStream(buf), n);
+            Assert.assertEquals(test, v);
         }
     }
 }
