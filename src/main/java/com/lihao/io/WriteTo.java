@@ -8,5 +8,5 @@ import java.io.OutputStream;
  */
 public interface WriteTo {
 
-    void writeTo(OutputStream io) throws IOException;
+    void writeTo(OutputStream w) throws IOException;
 }

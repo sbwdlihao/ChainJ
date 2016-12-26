@@ -5,6 +5,7 @@ import com.lihao.encoding.blockchain.BlockChain;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * Created by sbwdlihao on 23/12/2016.
@@ -17,15 +18,15 @@ public class TxData {
 
     public long version;
 
-    public TxInput[] inputs;
+    public TxInput[] inputs = new TxInput[0];
 
-    public TxOutput[] outPuts;
+    public TxOutput[] outPuts = new TxOutput[0];
 
     public long minTime;
 
     public long maxTime;
 
-    public byte[] referenceData;
+    public byte[] referenceData = new byte[0];
 
     public TxData() {
     }
@@ -50,20 +51,29 @@ public class TxData {
         this.referenceData = referenceData;
     }
 
+    public TxData(long version, TxOutput[] outPuts) {
+        this.version = version;
+        this.outPuts = outPuts;
+    }
+
+    public TxData(long version) {
+        this.version = version;
+    }
+
     void unMarshalText(byte[] p) throws IOException {
         byte[] b = Hex.decode(p);
         readFrom(new ByteArrayInputStream(b));
     }
 
-    private void readFrom(InputStream r) throws IOException {
+    void readFrom(InputStream r) throws IOException {
         readSerFlags(r);
-        version = BlockChain.readVarInt63(r, null);
+        version = BlockChain.readVarInt63(r);
         readCommonFields(r);
         // Common witness, empty in v1
-        BlockChain.readVarStr31(r, null);
+        BlockChain.readVarStr31(r);
         readInputsFrom(r);
         readOutputsFrom(r);
-        referenceData = BlockChain.readVarStr31(r, null);
+        referenceData = BlockChain.readVarStr31(r);
     }
 
     Hash hash() throws IOException {
@@ -73,9 +83,9 @@ public class TxData {
     }
 
     // assumes w has sticky errors
-    void writeTo(OutputStream w, byte serFlags) throws IOException {
-        w.write(new byte[]{serFlags});
-        BlockChain.writeVarInt63(w, version); // TODO(bobg): check and return error
+    void writeTo(OutputStream w, int serFlags) throws IOException {
+        w.write(serFlags);
+        BlockChain.writeVarInt63(w, version);
 
         // common fields
         writeCommonFields(w);
@@ -106,17 +116,14 @@ public class TxData {
     }
 
     private void readSerFlags(InputStream r) throws IOException {
-        int serFlags = r.read();
-        if (serFlags == -1) {
-            throw new IOException("readFull serFlags null");
-        }
+        int serFlags = BCUtil.readSerFlags(r);
         if (serFlags != Transaction.SerRequired) {
             throw new IOException(String.format("unsupported serFlags %#x", serFlags));
         }
     }
 
     private void readCommonFields(InputStream r) throws IOException {
-        byte[] commonFields = BlockChain.readVarStr31(r, null);
+        byte[] commonFields = BlockChain.readVarStr31(r);
         ByteArrayInputStream buf = new ByteArrayInputStream(commonFields);
         int[] n = new int[1];
         minTime = BlockChain.readVarInt63(buf, n);
@@ -127,7 +134,7 @@ public class TxData {
     }
 
     private void readInputsFrom(InputStream r) throws IOException {
-        int n = BlockChain.readVarInt31(r, null);
+        int n = BlockChain.readVarInt31(r);
         inputs = new TxInput[n];
         for (int i = 0; i < n; i++) {
             inputs[i] = TxInput.readFrom(r, version);
@@ -135,7 +142,7 @@ public class TxData {
     }
 
     private void readOutputsFrom(InputStream r) throws IOException {
-        int n = BlockChain.readVarInt31(r, null);
+        int n = BlockChain.readVarInt31(r);
         outPuts = new TxOutput[n];
         for (int i = 0; i < n; i++) {
             outPuts[i] = TxOutput.readFrom(r, version);
@@ -149,7 +156,7 @@ public class TxData {
         BlockChain.writeVarStr31(w, buf.toByteArray());
     }
 
-    private void writeInputsTo(OutputStream w, byte serFlags) throws IOException {
+    private void writeInputsTo(OutputStream w, int serFlags) throws IOException {
         if (inputs != null) {
             BlockChain.writeVarInt31(w, inputs.length);
             for (TxInput input : inputs) {
@@ -160,7 +167,7 @@ public class TxData {
         }
     }
 
-    private void writeOutputsTo(OutputStream w, byte serFlags) throws IOException {
+    private void writeOutputsTo(OutputStream w, int serFlags) throws IOException {
         if (outPuts != null) {
             BlockChain.writeVarInt31(w, outPuts.length);
             for (TxOutput outPut : outPuts) {
@@ -191,5 +198,31 @@ public class TxData {
         } else {
             BlockChain.writeVarInt31(w, 0);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TxData txData = (TxData) o;
+
+        if (version != txData.version) return false;
+        if (minTime != txData.minTime) return false;
+        if (maxTime != txData.maxTime) return false;
+        if (!Arrays.equals(inputs, txData.inputs)) return false;
+        if (!Arrays.equals(outPuts, txData.outPuts)) return false;
+        return Arrays.equals(referenceData, txData.referenceData);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (version ^ (version >>> 32));
+        result = 31 * result + Arrays.hashCode(inputs);
+        result = 31 * result + Arrays.hashCode(outPuts);
+        result = 31 * result + (int) (minTime ^ (minTime >>> 32));
+        result = 31 * result + (int) (maxTime ^ (maxTime >>> 32));
+        result = 31 * result + Arrays.hashCode(referenceData);
+        return result;
     }
 }

@@ -12,27 +12,31 @@ import java.io.OutputStream;
  * Created by sbwdlihao on 21/12/2016.
  */
 public class Transaction implements WriteTo{
+    // CurrentTransactionVersion is the current latest
+    // supported transaction version.
+    static final int CurrentTransactionVersion = 1;
+
     // These flags are part of the wire protocol;
     // they must not change.
-    static final byte SerWitness = 1;
-    static final byte SerPrevout = 2;
-    static final byte SerMetadata = 4;
+    static final int SerWitness = 1;
+    static final int SerPrevout = 2;
+    static final int SerMetadata = 4;
     // Bit mask for accepted serialization flags.
     // All other flag bits must be 0.
-    static final byte SerValid = 0x07;
-    static final byte SerRequired = 0x07; // we support only this combination of flags
+    static final int SerValid = 0x07;
+    static final int SerRequired = 0x07; // we support only this combination of flags
 
-    static void writeRefData(OutputStream w, byte[] data, byte serFlags) throws IOException {
+    static void writeRefData(OutputStream w, byte[] data, int serFlags) throws IOException {
         if ((serFlags & SerMetadata) != 0) {
-            BlockChain.writeVarStr31(w, data); // TODO(bobg): check and return error
+            BlockChain.writeVarStr31(w, data);
         } else {
             Hash.writeFastHash(w, data);
         }
     }
 
-    public TxData txData;
+    public TxData txData = new TxData();
 
-    public Hash hash;
+    public Hash hash = new Hash();
 
     public Transaction() {}
 
@@ -41,8 +45,8 @@ public class Transaction implements WriteTo{
         this.hash = txData.hash();
     }
 
-    public void writeTo(OutputStream io) throws IOException {
-        txData.writeTo(io, SerRequired);
+    public void writeTo(OutputStream w) throws IOException {
+        txData.writeTo(w, SerRequired);
     }
 
     public Hash witnessHash() throws IOException {
@@ -54,4 +58,21 @@ public class Transaction implements WriteTo{
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Transaction that = (Transaction) o;
+
+        if (txData != null ? !txData.equals(that.txData) : that.txData != null) return false;
+        return hash != null ? hash.equals(that.hash) : that.hash == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = txData != null ? txData.hashCode() : 0;
+        result = 31 * result + (hash != null ? hash.hashCode() : 0);
+        return result;
+    }
 }

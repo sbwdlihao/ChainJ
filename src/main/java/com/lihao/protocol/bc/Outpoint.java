@@ -5,21 +5,17 @@ import com.lihao.encoding.blockchain.BlockChain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
  */
 public class Outpoint {
 
-    public Hash hash;
+    public Hash hash = new Hash();
 
     public int index;
 
-    public Outpoint() {
-        hash = new Hash();
-    }
+    public Outpoint() {}
 
     public Outpoint(Hash hash, int index) {
         this.hash = hash;
@@ -35,6 +31,24 @@ public class Outpoint {
         w.write(hash.getValue());
         int n = BlockChain.writeVarInt31(w, index);
         return hash.getValue().length + n;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Outpoint outpoint = (Outpoint) o;
+
+        if (index != outpoint.index) return false;
+        return hash != null ? hash.equals(outpoint.hash) : outpoint.hash == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = hash != null ? hash.hashCode() : 0;
+        result = 31 * result + index;
+        return result;
     }
 
     @Override

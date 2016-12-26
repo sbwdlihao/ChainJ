@@ -11,9 +11,11 @@ import java.io.OutputStream;
  */
 public class AssetAmount {
 
-    public AssetID assetID;
+    public AssetID assetID = new AssetID();
 
     public long amount;
+
+    public AssetAmount() {}
 
     public AssetAmount(AssetID assetID, long amount) {
         this.assetID = assetID;
@@ -31,5 +33,23 @@ public class AssetAmount {
     void writeTo(OutputStream w) throws IOException {
         w.write(assetID.getValue());
         BlockChain.writeVarInt63(w, amount);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AssetAmount that = (AssetAmount) o;
+
+        if (amount != that.amount) return false;
+        return assetID != null ? assetID.equals(that.assetID) : that.assetID == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = assetID != null ? assetID.hashCode() : 0;
+        result = 31 * result + (int) (amount ^ (amount >>> 32));
+        return result;
     }
 }

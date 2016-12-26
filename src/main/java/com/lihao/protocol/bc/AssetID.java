@@ -34,7 +34,7 @@ public class AssetID extends AbstractHash {
         io.write(initialBlockHash.getValue());
         BlockChain.writeVarInt63(io, assetVersion);
         BlockChain.writeVarInt63(io, vmVersion);
-        BlockChain.writeVarStr31(io, issuanceProgram); // TODO(bobg): check and return error
+        BlockChain.writeVarStr31(io, issuanceProgram);
         return new AssetID(Sha3.Sum256(io.toByteArray()));
     }
 }

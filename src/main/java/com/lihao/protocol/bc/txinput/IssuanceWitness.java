@@ -9,22 +9,22 @@ import com.lihao.protocol.bc.exception.BadAssetIDException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public class IssuanceWitness extends SpendWitness implements InputWitness {
 
-    public Hash initialBlockHash;
+    public Hash initialBlockHash = new Hash();
 
     public long vmVersion;
 
-    public byte[] issuanceProgram;
+    public byte[] issuanceProgram = new byte[0];
 
     private IssuanceInputCommitment inputCommitment;
 
     public IssuanceWitness(IssuanceInputCommitment inputCommitment) {
-        initialBlockHash = new Hash();
         this.inputCommitment = inputCommitment;
     }
 
@@ -32,8 +32,8 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
     public void readFrom(InputStream r) throws IOException {
         // readFull IssuanceInput witness
         initialBlockHash.readFull(r);
-        vmVersion = BlockChain.readVarInt63(r, null);
-        issuanceProgram = BlockChain.readVarStr31(r, null);
+        vmVersion = BlockChain.readVarInt63(r);
+        issuanceProgram = BlockChain.readVarStr31(r);
         AssetID computedAssetID = AssetID.computeAssetID(issuanceProgram, initialBlockHash, vmVersion);
         if (computedAssetID != inputCommitment.assetID) {
             throw new BadAssetIDException("asset ID does not match other issuance parameters");
@@ -44,8 +44,31 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
     @Override
     public void writeTo(OutputStream w) throws IOException {
         w.write(initialBlockHash.getValue());
-        BlockChain.writeVarInt63(w, vmVersion); // TODO(bobg): check and return error
-        BlockChain.writeVarStr31(w, issuanceProgram); // TODO(bobg): check and return error
+        BlockChain.writeVarInt63(w, vmVersion);
+        BlockChain.writeVarStr31(w, issuanceProgram);
         super.writeTo(w);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IssuanceWitness)) return false;
+        if (!super.equals(o)) return false;
+
+        IssuanceWitness that = (IssuanceWitness) o;
+
+        if (vmVersion != that.vmVersion) return false;
+        if (initialBlockHash != null ? !initialBlockHash.equals(that.initialBlockHash) : that.initialBlockHash != null)
+            return false;
+        return Arrays.equals(issuanceProgram, that.issuanceProgram);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (initialBlockHash != null ? initialBlockHash.hashCode() : 0);
+        result = 31 * result + (int) (vmVersion ^ (vmVersion >>> 32));
+        result = 31 * result + Arrays.hashCode(issuanceProgram);
+        return result;
     }
 }

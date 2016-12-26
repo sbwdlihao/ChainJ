@@ -26,7 +26,7 @@ public class TransactionTest {
         TestTransactionCase[] cases = new TestTransactionCase[]{
                 new TestTransactionCase(
                         new Transaction(
-                                new TxData(1, null, null, 0, 0, null)
+                                new TxData(1, new TxInput[0], new TxOutput[0], 0, 0, new byte[0])
                         ),
                         "07" + // serflags
                         "01" + // transaction version
@@ -89,10 +89,10 @@ public class TransactionTest {
                 new TestTransactionCase(
                         new Transaction(
                                 new TxData(1, new TxInput[]{
-                                        new SpendInput(BCTest.mustDecodeHash("dd385f6fe25d91d8c1bd0fa58951ad56b0c5229dcc01f61d9f9e8b9eb92d3292"), 0, null, new AssetID(), 1000000000000L, new byte[]{1}, "input".getBytes())
+                                        new SpendInput(BCTest.mustDecodeHash("dd385f6fe25d91d8c1bd0fa58951ad56b0c5229dcc01f61d9f9e8b9eb92d3292"), 0, new byte[0][], new AssetID(), 1000000000000L, new byte[]{1}, "input".getBytes())
                                 }, new TxOutput[]{
-                                        new TxOutput(AssetID.computeAssetID(issuanceScript, initialBlockHash, 1), 600000000000L, new byte[]{1}, null),
-                                        new TxOutput(AssetID.computeAssetID(issuanceScript, initialBlockHash, 1), 400000000000L, new byte[]{2}, null),
+                                        new TxOutput(AssetID.computeAssetID(issuanceScript, initialBlockHash, 1), 600000000000L, new byte[]{1}, new byte[0]),
+                                        new TxOutput(AssetID.computeAssetID(issuanceScript, initialBlockHash, 1), 400000000000L, new byte[]{2}, new byte[0]),
                                 }, 1492590000, 1492590591, "distribution".getBytes())
                         ),
                         "07" + // serflags
@@ -153,19 +153,19 @@ public class TransactionTest {
                 new TestHasIssuanceCase(
                         new TxData(
                                 new TxInput[]{
-                                        new IssuanceInput(null, new AssetID(), 0, null, new Hash(), null, null)}),
+                                        new IssuanceInput(new byte[0], new AssetID(), 0, new byte[0], new Hash(), new byte[0], new byte[0][])}),
                         true),
                 new TestHasIssuanceCase(
                         new TxData(
                                 new TxInput[]{
-                                        new SpendInput(new Hash(), 0, null, new AssetID(), 0, null, null),
-                                        new IssuanceInput(null, new AssetID(), 0, null, new Hash(), null, null)
+                                        new SpendInput(new Hash(), 0, new byte[0][], new AssetID(), 0, new byte[0], new byte[0]),
+                                        new IssuanceInput(new byte[0], new AssetID(), 0, new byte[0], new Hash(), new byte[0], new byte[0][])
                                 }),
                         true),
                 new TestHasIssuanceCase(
                         new TxData(
                                 new TxInput[]{
-                                        new SpendInput(new Hash(), 0, null, new AssetID(), 0, null, null),
+                                        new SpendInput(new Hash(), 0, new byte[0][], new AssetID(), 0, new byte[0], new byte[0]),
                                 }),
                         false),
                 new TestHasIssuanceCase(
@@ -235,11 +235,11 @@ public class TransactionTest {
         AssetID assetID = AssetID.computeAssetID(new byte[]{1}, BCTest.mustDecodeHash("03deff1d4319d67baa10a6d26c1fea9c3e8d30e33474efee1a610a9bb49d758d"), 1);
         TxData txData = new TxData(1,
                 new TxInput[]{
-                        new SpendInput(BCTest.mustDecodeHash("d250fa36f2813ddb8aed0fc66790ee58121bcbe88909bf88be12083d45320151"), 0, new byte[][]{new byte[]{1}}, new AssetID(), 0, null, "input1".getBytes()),
-                        new SpendInput(BCTest.mustDecodeHash("d250fa36f2813ddb8aed0fc66790ee58121bcbe88909bf88be12083d45320151"), 1, new byte[][]{new byte[]{2}}, new AssetID(), 0, null, null),
+                        new SpendInput(BCTest.mustDecodeHash("d250fa36f2813ddb8aed0fc66790ee58121bcbe88909bf88be12083d45320151"), 0, new byte[][]{new byte[]{1}}, new AssetID(), 0, new byte[0], "input1".getBytes()),
+                        new SpendInput(BCTest.mustDecodeHash("d250fa36f2813ddb8aed0fc66790ee58121bcbe88909bf88be12083d45320151"), 1, new byte[][]{new byte[]{2}}, new AssetID(), 0, new byte[0], new byte[0]),
                 },
                 new TxOutput[]{
-                        new TxOutput(assetID, 1000000000000L, new byte[]{3}, null)
+                        new TxOutput(assetID, 1000000000000L, new byte[]{3}, new byte[0])
                 },
                 "transfer".getBytes()
         );

@@ -3,17 +3,18 @@ package com.lihao.protocol.bc;
 import com.lihao.encoding.blockchain.BlockChain;
 
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
  */
 public class OutputCommitment {
 
-    public AssetAmount assetAmount;
+    public AssetAmount assetAmount = new AssetAmount();
 
     public long vmVersion;
 
-    public byte[] controlProgram;
+    public byte[] controlProgram = new byte[0];
 
     public OutputCommitment() {}
 
@@ -21,6 +22,10 @@ public class OutputCommitment {
         this.assetAmount = assetAmount;
         this.vmVersion = vmVersion;
         this.controlProgram = controlProgram;
+    }
+
+    public void readFrom(InputStream r, long txVersion, long assetVersion) throws IOException {
+        readFrom(r, txVersion, assetVersion, null);
     }
 
     public void readFrom(InputStream r, long txVersion, long assetVersion, int[] nOut) throws IOException {
@@ -42,9 +47,29 @@ public class OutputCommitment {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         if (assetVersion == 1) {
             assetAmount.writeTo(buf);
-            BlockChain.writeVarInt63(buf, vmVersion); // TODO(bobg): check and return error
+            BlockChain.writeVarInt63(buf, vmVersion);
             BlockChain.writeVarStr31(buf, controlProgram);
         }
-        BlockChain.writeVarStr31(w, buf.toByteArray()); // TODO(bobg): check and return error
+        BlockChain.writeVarStr31(w, buf.toByteArray());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OutputCommitment that = (OutputCommitment) o;
+
+        if (vmVersion != that.vmVersion) return false;
+        if (assetAmount != null ? !assetAmount.equals(that.assetAmount) : that.assetAmount != null) return false;
+        return Arrays.equals(controlProgram, that.controlProgram);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = assetAmount != null ? assetAmount.hashCode() : 0;
+        result = 31 * result + (int) (vmVersion ^ (vmVersion >>> 32));
+        result = 31 * result + Arrays.hashCode(controlProgram);
+        return result;
     }
 }

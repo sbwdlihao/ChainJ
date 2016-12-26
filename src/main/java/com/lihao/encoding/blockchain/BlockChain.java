@@ -11,6 +11,10 @@ import java.io.OutputStream;
  */
 public class BlockChain {
 
+    public static int readVarInt31(InputStream in) throws IOException {
+        return readVarInt31(in, null);
+    }
+
     public static int readVarInt31(InputStream in, int[] nOut) throws IOException {
         long val = VarInt.readUVarInt(in, nOut);
         if (val > Integer.MAX_VALUE || val < 0) {
@@ -19,12 +23,20 @@ public class BlockChain {
         return (int)val; // 返回的结果在0到2^31 - 1之间，所以用int表示没有问题
     }
 
+    public static long readVarInt63(InputStream in) throws IOException {
+        return readVarInt63(in, null);
+    }
+
     public static long readVarInt63(InputStream in, int[] nOut) throws IOException {
         long val = VarInt.readUVarInt(in, nOut);
         if (val < 0) {
             throw new ArithmeticException("value out of range");
         }
         return val;
+    }
+
+    public static byte[] readVarStr31(InputStream in) throws IOException {
+        return readVarStr31(in, null);
     }
 
     public static byte[] readVarStr31(InputStream in, int[] nOut) throws IOException {
