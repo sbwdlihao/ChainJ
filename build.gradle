@@ -16,6 +16,7 @@ dependencies {
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.55'
     compile group: 'net.i2p.crypto', name: 'eddsa', version: '0.1.0'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+    compile group: 'com.google.guava', name: 'guava', version: '21.0-rc1'
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.2.RELEASE'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.193'

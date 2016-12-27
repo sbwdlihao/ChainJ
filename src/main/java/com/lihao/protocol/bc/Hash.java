@@ -5,9 +5,7 @@ import com.lihao.encoding.blockchain.BlockChain;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
@@ -32,20 +30,8 @@ public class Hash extends AbstractHash{
         this.value = value;
     }
 
-    public byte[] marshalText() {
-        return Hex.encode(value);
-    }
-
-    public void unMarshalText(byte[] hex) {
-        value = Hex.decode(hex);
-    }
-
     public String toString() {
-        return new String(marshalText());
-    }
-
-    public static Hash parseHash(String s) {
-        return new Hash(Hex.decode(s));
+        return new String(Hex.encode(value));
     }
 
     static void writeFastHash(OutputStream w, byte[] d) throws IOException {
