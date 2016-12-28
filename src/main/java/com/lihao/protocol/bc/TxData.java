@@ -6,6 +6,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 23/12/2016.
@@ -16,48 +17,99 @@ import java.util.Arrays;
  */
 public class TxData {
 
-    public long version;
+    private long version;
 
-    public TxInput[] inputs = new TxInput[0];
+    private TxInput[] inputs = new TxInput[0];
 
-    public TxOutput[] outPuts = new TxOutput[0];
+    private TxOutput[] outPuts = new TxOutput[0];
 
-    public long minTime;
+    private long minTime;
 
-    public long maxTime;
+    private long maxTime;
 
-    public byte[] referenceData = new byte[0];
+    private byte[] referenceData = new byte[0];
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public TxInput[] getInputs() {
+        return inputs;
+    }
+
+    public void setInputs(TxInput[] inputs) {
+        Objects.requireNonNull(inputs, "inputs can not be null");
+        this.inputs = inputs;
+    }
+
+    public TxOutput[] getOutPuts() {
+        return outPuts;
+    }
+
+    public void setOutPuts(TxOutput[] outPuts) {
+        Objects.requireNonNull(outPuts, "outPuts can not be null");
+        this.outPuts = outPuts;
+    }
+
+    public long getMinTime() {
+        return minTime;
+    }
+
+    public void setMinTime(long minTime) {
+        this.minTime = minTime;
+    }
+
+    public long getMaxTime() {
+        return maxTime;
+    }
+
+    public void setMaxTime(long maxTime) {
+        this.maxTime = maxTime;
+    }
+
+    public byte[] getReferenceData() {
+        return referenceData;
+    }
+
+    public void setReferenceData(byte[] referenceData) {
+        Objects.requireNonNull(referenceData, "referenceData can not be null");
+        this.referenceData = referenceData;
+    }
 
     public TxData() {
     }
 
     public TxData(TxInput[] inputs) {
-        this.inputs = inputs;
+        setInputs(inputs);
     }
 
     public TxData(long version, TxInput[] inputs, TxOutput[] outPuts, byte[] referenceData) {
-        this.version = version;
-        this.inputs = inputs;
-        this.outPuts = outPuts;
-        this.referenceData = referenceData;
+        setVersion(version);
+        setInputs(inputs);
+        setOutPuts(outPuts);
+        setReferenceData(referenceData);
     }
 
     public TxData(long version, TxInput[] inputs, TxOutput[] outPuts, long minTime, long maxTime, byte[] referenceData) {
-        this.version = version;
-        this.inputs = inputs;
-        this.outPuts = outPuts;
-        this.minTime = minTime;
-        this.maxTime = maxTime;
-        this.referenceData = referenceData;
+        setVersion(version);
+        setInputs(inputs);
+        setOutPuts(outPuts);
+        setMinTime(minTime);
+        setMaxTime(maxTime);
+        setReferenceData(referenceData);
     }
 
     public TxData(long version, TxOutput[] outPuts) {
-        this.version = version;
-        this.outPuts = outPuts;
+        setVersion(version);
+        setOutPuts(outPuts);
     }
 
     public TxData(long version) {
-        this.version = version;
+        setVersion(version);
     }
 
     void unMarshalText(byte[] p) throws IOException {
@@ -67,13 +119,13 @@ public class TxData {
 
     void readFrom(InputStream r) throws IOException {
         readSerFlags(r);
-        version = BlockChain.readVarInt63(r);
+        setVersion(BlockChain.readVarInt63(r));
         readCommonFields(r);
         // Common witness, empty in v1
         BlockChain.readVarStr31(r);
         readInputsFrom(r);
         readOutputsFrom(r);
-        referenceData = BlockChain.readVarStr31(r);
+        setReferenceData(BlockChain.readVarStr31(r));
     }
 
     Hash hash() throws IOException {
@@ -85,7 +137,7 @@ public class TxData {
     // assumes w has sticky errors
     void writeTo(OutputStream w, int serFlags) throws IOException {
         w.write(serFlags);
-        BlockChain.writeVarInt63(w, version);
+        BlockChain.writeVarInt63(w, getVersion());
 
         // common fields
         writeCommonFields(w);
@@ -101,11 +153,9 @@ public class TxData {
 
     // HasIssuance returns true if this transaction has an issuance input.
     boolean hasIssuance() {
-        if (inputs != null) {
-            for (TxInput input : inputs) {
-                if (input.isIssuance()) {
-                    return true;
-                }
+        for (TxInput input : inputs) {
+            if (input.isIssuance()) {
+                return true;
             }
         }
         return false;
@@ -126,26 +176,26 @@ public class TxData {
         byte[] commonFields = BlockChain.readVarStr31(r);
         ByteArrayInputStream buf = new ByteArrayInputStream(commonFields);
         int[] n = new int[1];
-        minTime = BlockChain.readVarInt63(buf, n);
-        maxTime = BlockChain.readVarInt63(buf, n);
-        if (version == 1 && n[0] < commonFields.length) {
+        setMinTime(BlockChain.readVarInt63(buf, n));
+        setMaxTime(BlockChain.readVarInt63(buf, n));
+        if (getVersion() == 1 && n[0] < commonFields.length) {
             throw new IOException("unrecognized extra data in common fields for transaction version 1");
         }
     }
 
     private void readInputsFrom(InputStream r) throws IOException {
         int n = BlockChain.readVarInt31(r);
-        inputs = new TxInput[n];
+        setInputs(new TxInput[n]);
         for (int i = 0; i < n; i++) {
-            inputs[i] = TxInput.readFrom(r, version);
+            inputs[i] = TxInput.readFrom(r, getVersion());
         }
     }
 
     private void readOutputsFrom(InputStream r) throws IOException {
         int n = BlockChain.readVarInt31(r);
-        outPuts = new TxOutput[n];
+        setOutPuts(new TxOutput[n]);
         for (int i = 0; i < n; i++) {
-            outPuts[i] = TxOutput.readFrom(r, version);
+            outPuts[i] = TxOutput.readFrom(r, getVersion());
         }
     }
 
@@ -157,46 +207,30 @@ public class TxData {
     }
 
     private void writeInputsTo(OutputStream w, int serFlags) throws IOException {
-        if (inputs != null) {
-            BlockChain.writeVarInt31(w, inputs.length);
-            for (TxInput input : inputs) {
-                input.writeTo(w, serFlags);
-            }
-        } else {
-            BlockChain.writeVarInt31(w, 0);
+        BlockChain.writeVarInt31(w, inputs.length);
+        for (TxInput input : inputs) {
+            input.writeTo(w, serFlags);
         }
     }
 
     private void writeOutputsTo(OutputStream w, int serFlags) throws IOException {
-        if (outPuts != null) {
-            BlockChain.writeVarInt31(w, outPuts.length);
-            for (TxOutput outPut : outPuts) {
-                outPut.writeTo(w, serFlags);
-            }
-        } else {
-            BlockChain.writeVarInt31(w, 0);
+        BlockChain.writeVarInt31(w, outPuts.length);
+        for (TxOutput outPut : outPuts) {
+            outPut.writeTo(w, serFlags);
         }
     }
 
     void writeInputsWitnessTo(OutputStream w) throws IOException {
-        if (inputs != null) {
-            BlockChain.writeVarInt31(w, inputs.length);
-            for (TxInput input : inputs) {
-                w.write(input.witnessHash().getValue());
-            }
-        } else {
-            BlockChain.writeVarInt31(w, 0);
+        BlockChain.writeVarInt31(w, inputs.length);
+        for (TxInput input : inputs) {
+            w.write(input.witnessHash().getValue());
         }
     }
 
     void writeOutputsWitnessTo(OutputStream w) throws IOException {
-        if (outPuts != null) {
-            BlockChain.writeVarInt31(w, outPuts.length);
-            for (TxOutput outPut : outPuts) {
-                w.write(outPut.witnessHash().getValue());
-            }
-        } else {
-            BlockChain.writeVarInt31(w, 0);
+        BlockChain.writeVarInt31(w, outPuts.length);
+        for (TxOutput outPut : outPuts) {
+            w.write(outPut.witnessHash().getValue());
         }
     }
 

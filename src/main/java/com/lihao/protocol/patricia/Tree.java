@@ -13,18 +13,26 @@ import java.util.Arrays;
  */
 public class Tree {
 
-    static final int leafPrefix = 0x00;
+    private static final int leafPrefix = 0x00;
     static final int interiorPrefix = 0x01;
 
     private static final String ErrPrefix = "key provided is a prefix to other keys";
 
-    Node root;
+    private Node root;
+
+    public Node getRoot() {
+        return root;
+    }
+
+    public void setRoot(Node root) {
+        this.root = root;
+    }
 
     public Tree() {
     }
 
     public Tree(Node root) {
-        this.root = root;
+        setRoot(root);
     }
 
     // Insert enters data into the tree.
@@ -39,11 +47,11 @@ public class Tree {
         Hash hash = valueHash(value);
 
         if (root == null) {
-            root = new Node(bitKey, hash, true);
+            setRoot(new Node(bitKey, hash, true));
             return;
         }
 
-        root = insert(root, bitKey, hash);
+        setRoot(insert(root, bitKey, hash));
     }
 
     public boolean contains(byte[] key, byte[] value) throws IOException {
@@ -52,7 +60,7 @@ public class Tree {
         }
         int[] bitKey = PatriciaUtil.bitKey(key);
         Node node = lookup(root, bitKey);
-        return node != null && node.hash.equals(valueHash(value));
+        return node != null && node.getHash().equals(valueHash(value));
     }
 
     // Delete removes up to one value with a matching key.
@@ -63,69 +71,75 @@ public class Tree {
         if (root == null) {
             return;
         }
-        root = delete(root, bitKey);
+        setRoot(delete(root, bitKey));
+    }
+
+    // copy returns a new tree with the same root as this tree. It
+    // is an O(1) operation.
+    public Tree copy() {
+        return new Tree(root);
     }
 
     private Node delete(Node node, int[] key) {
-        if (Arrays.equals(node.key, key)) {
-            if (!node.isLeaf) {
+        if (Arrays.equals(node.getKey(), key)) {
+            if (!node.isLeaf()) {
                 throw new IllegalArgumentException(ErrPrefix);
             }
             return null;
         }
-        if (Ints.indexOf(key, node.key) == -1) {
+        if (Ints.indexOf(key, node.getKey()) == -1) {
             return node;
         }
-        int branch = key[node.key.length];
-        Node newChild = delete(node.children[branch], key);
+        int branch = key[node.getKey().length];
+        Node newChild = delete(node.getChildren()[branch], key);
         if (newChild == null) {
-            return node.children[1 - branch];
+            return node.getChildren()[1 - branch];
         }
-        node.children[branch] = newChild;
-        node.hash = null;
+        node.getChildren()[branch] = newChild;
+        node.setHash(null);
         return node;
     }
 
 
     private Node insert(Node node, int[] key, Hash hash) {
-        if (Arrays.equals(node.key, key)) {
-            if (!node.isLeaf) {
+        if (Arrays.equals(node.getKey(), key)) {
+            if (!node.isLeaf()) {
                 throw new IllegalArgumentException(ErrPrefix);
             }
-            node.hash = hash;
-            node.isLeaf = true;
+            node.setHash(hash);
+            node.setLeaf(true);
             return node;
         }
 
-        if (Ints.indexOf(key, node.key) != -1) {
-            if (node.isLeaf) {
+        if (Ints.indexOf(key, node.getKey()) != -1) {
+            if (node.isLeaf()) {
                 throw new IllegalArgumentException(ErrPrefix);
             }
-            int childIndex = key[node.key.length];
-            Node child = node.children[childIndex];
+            int childIndex = key[node.getKey().length];
+            Node child = node.getChildren()[childIndex];
             child = insert(child, key, hash);
-            node.children[childIndex] = child;
-            node.hash = null;
+            node.getChildren()[childIndex] = child;
+            node.setHash(null);
             return node;
         }
 
-        int common = PatriciaUtil.commonPrefixLen(node.key, key);
+        int common = PatriciaUtil.commonPrefixLen(node.getKey(), key);
         int[] newNodeKey = Arrays.copyOfRange(key, 0, common);
         Node newNode = new Node(newNodeKey);
-        newNode.children[key[common]] = new Node(key, hash, true);
-        newNode.children[1 - key[common]] = node;
+        newNode.getChildren()[key[common]] = new Node(key, hash, true);
+        newNode.getChildren()[1 - key[common]] = node;
         return newNode;
     }
 
     Node lookup(Node node, int[] key) {
-        if (Arrays.equals(key, node.key)) {
-            return node.isLeaf ? node : null;
+        if (Arrays.equals(key, node.getKey())) {
+            return node.isLeaf() ? node : null;
         }
-        if (Ints.indexOf(key, node.key) == -1) {
+        if (Ints.indexOf(key, node.getKey()) == -1) {
             return null;
         }
-        int branch = key[node.key.length];
-        return lookup(node.children[branch], key);
+        int branch = key[node.getKey().length];
+        return lookup(node.getChildren()[branch], key);
     }
 
     Hash rootHash() throws IOException {

@@ -4,24 +4,51 @@ import com.lihao.encoding.blockchain.BlockChain;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
  */
 public class OutputCommitment {
 
-    public AssetAmount assetAmount = new AssetAmount();
+    private AssetAmount assetAmount = new AssetAmount();
 
-    public long vmVersion;
+    private long vmVersion;
 
-    public byte[] controlProgram = new byte[0];
+    private byte[] controlProgram = new byte[0];
+
+    public AssetAmount getAssetAmount() {
+        return assetAmount;
+    }
+
+    public void setAssetAmount(AssetAmount assetAmount) {
+        Objects.requireNonNull(assetAmount);
+        this.assetAmount = assetAmount;
+    }
+
+    public long getVmVersion() {
+        return vmVersion;
+    }
+
+    public void setVmVersion(long vmVersion) {
+        this.vmVersion = vmVersion;
+    }
+
+    public byte[] getControlProgram() {
+        return controlProgram;
+    }
+
+    public void setControlProgram(byte[] controlProgram) {
+        Objects.requireNonNull(controlProgram);
+        this.controlProgram = controlProgram;
+    }
 
     public OutputCommitment() {}
 
     public OutputCommitment(AssetAmount assetAmount, long vmVersion, byte[] controlProgram) {
-        this.assetAmount = assetAmount;
-        this.vmVersion = vmVersion;
-        this.controlProgram = controlProgram;
+        setAssetAmount(assetAmount);
+        setVmVersion(vmVersion);
+        setControlProgram(controlProgram);
     }
 
     public void readFrom(InputStream r, long txVersion, long assetVersion) throws IOException {
@@ -36,8 +63,8 @@ public class OutputCommitment {
         InputStream in = new ByteArrayInputStream(b);
         int[] n1 = new int[1];
         assetAmount.readFrom(in, n1);
-        vmVersion = BlockChain.readVarInt63(in, n1);
-        controlProgram = BlockChain.readVarStr31(in, n1);
+        setVmVersion(BlockChain.readVarInt63(in, n1));
+        setControlProgram(BlockChain.readVarStr31(in, n1));
         if (txVersion == 1 && n1[0] < b.length) {
             throw new IOException("unrecognized extra data in output commitment for transaction version 1");
         }

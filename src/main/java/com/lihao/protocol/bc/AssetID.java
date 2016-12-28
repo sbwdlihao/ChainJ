@@ -5,6 +5,7 @@ import com.lihao.encoding.blockchain.BlockChain;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
@@ -30,6 +31,9 @@ public class AssetID extends AbstractHash {
     // ComputeAssetID computes the asset ID of the asset defined by
     // the given issuance program and initial block hash.
     public static AssetID computeAssetID(byte[] issuanceProgram, Hash initialBlockHash, long vmVersion) throws IOException {
+        Objects.requireNonNull(issuanceProgram);
+        Objects.requireNonNull(initialBlockHash);
+
         ByteArrayOutputStream io = new ByteArrayOutputStream();
         io.write(initialBlockHash.getValue());
         BlockChain.writeVarInt63(io, assetVersion);

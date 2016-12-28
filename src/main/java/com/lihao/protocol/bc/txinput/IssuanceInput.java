@@ -1,8 +1,6 @@
 package com.lihao.protocol.bc.txinput;
 
-import com.lihao.protocol.bc.AssetID;
-import com.lihao.protocol.bc.Hash;
-import com.lihao.protocol.bc.TxInput;
+import com.lihao.protocol.bc.*;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
@@ -10,24 +8,31 @@ import com.lihao.protocol.bc.TxInput;
 public class IssuanceInput extends TxInput {
 
     public IssuanceInput(byte[] nonce, AssetID assetID, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments) {
-        this.assetVersion = 1;
-        this.referenceData = referenceData;
+        setAssetVersion(1);
+        setReferenceData(referenceData);
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
         IssuanceWitness inputWitness = new IssuanceWitness(inputCommitment);
-        inputCommitment.amount = amount;
-        inputCommitment.nonce = nonce;
-        inputCommitment.assetID = assetID;
-        inputWitness.vmVersion = 1;
-        inputWitness.initialBlockHash = initialBlockHash;
-        inputWitness.issuanceProgram = issuanceProgram;
-        inputWitness.arguments = arguments;
-        this.inputCommitment = inputCommitment;
-        this.inputWitness = inputWitness;
+        inputCommitment.setAmount(amount);
+        inputCommitment.setNonce(nonce);
+        inputCommitment.setAssetID(assetID);
+        inputWitness.setVmVersion(1);
+        inputWitness.setInitialBlockHash(initialBlockHash);
+        inputWitness.setIssuanceProgram(issuanceProgram);
+        inputWitness.setArguments(arguments);
+        setInputCommitment(inputCommitment);
+        setInputWitness(inputWitness);
     }
 
-    public IssuanceInput(){
-        inputCommitment = new IssuanceInputCommitment();
-        inputWitness = new IssuanceWitness((IssuanceInputCommitment)inputCommitment);
+    public IssuanceInput() {
+        IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
+        setInputCommitment(inputCommitment);
+        setInputWitness(new IssuanceWitness(inputCommitment));
+    }
+
+    @Override
+    protected AssetAmount assetAmount() {
+        IssuanceInputCommitment inputCommitment = (IssuanceInputCommitment)this.inputCommitment;
+        return new AssetAmount(inputCommitment.getAssetID(), inputCommitment.getAmount());
     }
 
     @Override

@@ -14,8 +14,8 @@ import java.io.OutputStream;
 public class EmptyTxInput extends TxInput {
 
     public EmptyTxInput() {
-        inputCommitment = new EmptyInputCommitment();
-        inputWitness = new EmptyInputWitness();
+        setInputCommitment(new EmptyInputCommitment());
+        setInputWitness(new EmptyInputWitness());
     }
 
     class EmptyInputCommitment implements InputCommitment {

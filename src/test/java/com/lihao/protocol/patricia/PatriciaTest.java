@@ -118,19 +118,19 @@ public class PatriciaTest {
         makeValues(values, hashes);
 
         Tree tr = new Tree(new Node(bools("11111111"), hashes[0], true));
-        Node got = tr.lookup(tr.root, PatriciaUtil.bitKey(bits("11111111")));
-        Assert.assertEquals(tr.root, got);
+        Node got = tr.lookup(tr.getRoot(), PatriciaUtil.bitKey(bits("11111111")));
+        Assert.assertEquals(tr.getRoot(), got);
 
         tr = new Tree(new Node(bools("11111110"), hashes[0], true));
-        got = tr.lookup(tr.root, PatriciaUtil.bitKey(bits("11111111")));
+        got = tr.lookup(tr.getRoot(), PatriciaUtil.bitKey(bits("11111111")));
         Assert.assertNull(got);
 
         tr = new Tree(new Node(bools("1111"), hashForNonLeaf(hashes[2], hashes[1]), new Node[]{
                 new Node(bools("11110000"), hashes[2], true),
                 new Node(bools("11111111"), hashes[1], true),
         }));
-        got = tr.lookup(tr.root, PatriciaUtil.bitKey(bits("11110000")));
-        Assert.assertEquals(tr.root.children[0], got);
+        got = tr.lookup(tr.getRoot(), PatriciaUtil.bitKey(bits("11110000")));
+        Assert.assertEquals(tr.getRoot().getChildren()[0], got);
 
         tr = new Tree(new Node(bools("1111"), hashForNonLeaf(hashes[2], hashForNonLeaf(hashes[3], hashes[1])), new Node[]{
                 new Node(bools("11110000"), hashes[2], true),
@@ -139,8 +139,8 @@ public class PatriciaTest {
                         new Node(bools("11111111"), hashes[1], true),
                 }),
         }));
-        got = tr.lookup(tr.root, PatriciaUtil.bitKey(bits("11111100")));
-        Assert.assertEquals(tr.root.children[1].children[0], got);
+        got = tr.lookup(tr.getRoot(), PatriciaUtil.bitKey(bits("11111100")));
+        Assert.assertEquals(tr.getRoot().getChildren()[1].getChildren()[0], got);
     }
 
     @Test

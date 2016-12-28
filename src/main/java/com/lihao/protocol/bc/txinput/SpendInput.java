@@ -8,19 +8,34 @@ import com.lihao.protocol.bc.*;
 public class SpendInput extends TxInput {
 
     public SpendInput(Hash txHash, int index, byte[][] arguments, AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
-        this.assetVersion = 1;
-        this.referenceData = referenceData;
+        setAssetVersion(1);
+        setReferenceData(referenceData);
         SpendInputCommitment inputCommitment = new SpendInputCommitment(this);
         SpendWitness inputWitness = new SpendWitness();
-        inputCommitment.outpoint = new Outpoint(txHash, index);
-        inputCommitment.outputCommitment = new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram);
-        inputWitness.arguments = arguments;
-        this.inputCommitment = inputCommitment;
-        this.inputWitness = inputWitness;
+        inputCommitment.setOutpoint(new Outpoint(txHash, index));
+        inputCommitment.setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
+        inputWitness.setArguments(arguments);
+        setInputCommitment(inputCommitment);
+        setInputWitness(inputWitness);
     }
 
     public SpendInput(){
-        inputCommitment = new SpendInputCommitment(this);
-        inputWitness = new SpendWitness();
+        setInputCommitment(new SpendInputCommitment(this));
+        setInputWitness(new SpendWitness());
+    }
+
+    @Override
+    protected AssetAmount assetAmount() {
+        return ((SpendInputCommitment)this.inputCommitment).getOutputCommitment().getAssetAmount();
+    }
+
+    @Override
+    protected byte[] controlProgram() {
+        return ((SpendInputCommitment)this.inputCommitment).getOutputCommitment().getControlProgram();
+    }
+
+    @Override
+    protected Outpoint outpoint() {
+        return ((SpendInputCommitment)this.inputCommitment).getOutpoint();
     }
 }

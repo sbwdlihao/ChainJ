@@ -7,17 +7,36 @@ import com.lihao.protocol.bc.OutputCommitment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public class SpendInputCommitment implements InputCommitment {
 
-    public Outpoint outpoint = new Outpoint();
+    private Outpoint outpoint = new Outpoint();
 
-    public OutputCommitment outputCommitment = new OutputCommitment();
+    private OutputCommitment outputCommitment = new OutputCommitment();
 
     private SpendInput spendInput;
+
+    public Outpoint getOutpoint() {
+        return outpoint;
+    }
+
+    public void setOutpoint(Outpoint outpoint) {
+        Objects.requireNonNull(outpoint);
+        this.outpoint = outpoint;
+    }
+
+    public OutputCommitment getOutputCommitment() {
+        return outputCommitment;
+    }
+
+    public void setOutputCommitment(OutputCommitment outputCommitment) {
+        Objects.requireNonNull(outputCommitment);
+        this.outputCommitment = outputCommitment;
+    }
 
     public SpendInputCommitment(SpendInput spendInput) {
         this.spendInput = spendInput;
@@ -35,7 +54,7 @@ public class SpendInputCommitment implements InputCommitment {
     public void writeTo(OutputStream w) throws IOException {
         w.write(new byte[]{1}); // spend type
         outpoint.writeTo(w);
-        outputCommitment.writeTo(w, spendInput.assetVersion);
+        outputCommitment.writeTo(w, spendInput.getAssetVersion());
     }
 
     @Override

@@ -14,28 +14,63 @@ import java.util.Arrays;
  */
 class Node {
 
-    int[] key;
-    Hash hash;
-    boolean isLeaf;
-    Node[] children = new Node[2];
+    private int[] key;
+    private Hash hash;
+    private boolean isLeaf;
+    private Node[] children = new Node[2];
+
+    public int[] getKey() {
+        return key;
+    }
+
+    public void setKey(int[] key) {
+        this.key = key;
+    }
+
+    public Hash getHash() {
+        return hash;
+    }
+
+    public void setHash(Hash hash) {
+        this.hash = hash;
+    }
+
+    public boolean isLeaf() {
+        return isLeaf;
+    }
+
+    public void setLeaf(boolean leaf) {
+        isLeaf = leaf;
+    }
+
+    public Node[] getChildren() {
+        return children;
+    }
+
+    public void setChildren(Node[] children) {
+        if (children == null || children.length != 2) {
+            throw new IllegalArgumentException("children length must be 2");
+        }
+        this.children = children;
+    }
 
     public Node() {
     }
 
     public Node(int[] key) {
-        this.key = key;
+        setKey(key);
     }
 
     public Node(int[] key, Hash hash, boolean isLeaf) {
-        this.key = key;
-        this.hash = hash;
-        this.isLeaf = isLeaf;
+        setKey(key);
+        setHash(hash);
+        setLeaf(isLeaf);
     }
 
     public Node(int[] key, Hash hash, Node[] children) {
-        this.key = key;
-        this.hash = hash;
-        this.children = children;
+        setKey(key);
+        setHash(hash);
+        setChildren(children);
     }
 
     // Key returns the key for the current node as bytes, as it was provided to Insert.
@@ -60,7 +95,7 @@ class Node {
                 buf.write(child.hash().getValue());
             }
         }
-        hash = new Hash(Sha3.Sum256(buf.toByteArray()));
+        setHash(new Hash(Sha3.Sum256(buf.toByteArray())));
     }
 
     @Override

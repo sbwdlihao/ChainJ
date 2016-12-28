@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 26/12/2016.
@@ -22,26 +23,44 @@ public class Block implements WriteTo{
     // NewBlockVersion is the version to use when creating new blocks.
     static final int NewBlockVersion = 1;
 
-    public BlockHeader blockHeader = new BlockHeader();
+    private BlockHeader blockHeader = new BlockHeader();
 
-    public Transaction[] transactions = new Transaction[0];
+    private Transaction[] transactions = new Transaction[0];
+
+    public BlockHeader getBlockHeader() {
+        return blockHeader;
+    }
+
+    public void setBlockHeader(BlockHeader blockHeader) {
+        Objects.requireNonNull(blockHeader);
+        this.blockHeader = blockHeader;
+    }
+
+    public Transaction[] getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(Transaction[] transactions) {
+        Objects.requireNonNull(blockHeader);
+        this.transactions = transactions;
+    }
 
     public Block() {}
 
     public Block(BlockHeader blockHeader) {
-        this.blockHeader = blockHeader;
+        setBlockHeader(blockHeader);
     }
 
     public Block(BlockHeader blockHeader, Transaction[] transactions) {
-        this.blockHeader = blockHeader;
-        this.transactions = transactions;
+        setBlockHeader(blockHeader);
+        setTransactions(transactions);
     }
 
     void readFrom(InputStream r) throws IOException {
         int serFlags = blockHeader.readFrom(r);
         if ((serFlags & SerBlockTransactions) == SerBlockTransactions) {
             int n = BlockChain.readVarInt31(r);
-            transactions = new Transaction[n];
+            setTransactions(new Transaction[n]);
             for (int i = 0; i < n; i++) {
                 TxData txData = new TxData();
                 txData.readFrom(r);
@@ -57,13 +76,9 @@ public class Block implements WriteTo{
     void writeTo(OutputStream w, int serFlags) throws IOException {
         blockHeader.writeTo(w, serFlags);
         if ((serFlags & SerBlockTransactions) == SerBlockTransactions) {
-            if (transactions != null) {
-                BlockChain.writeVarInt31(w, transactions.length);
-                for (Transaction transaction : transactions) {
-                    transaction.writeTo(w);
-                }
-            } else {
-                BlockChain.writeVarInt31(w, 0);
+            BlockChain.writeVarInt31(w, transactions.length);
+            for (Transaction transaction : transactions) {
+                transaction.writeTo(w);
             }
         }
     }

@@ -85,7 +85,7 @@ public class BlockTest {
         byte[] want = Hex.decode(wantHex);
         Assert.assertArrayEquals(want, got);
 
-        got = BCTest.serialize(b.blockHeader);
+        got = BCTest.serialize(b.getBlockHeader());
         wantHex = "01" + // serialization flags
                 "01" + // version
                 "01" + // block height
@@ -100,9 +100,9 @@ public class BlockTest {
         want = Hex.decode(wantHex);
         Assert.assertArrayEquals(want, got);
 
-        Assert.assertEquals(BCTest.mustDecodeHash("7508682af2b4770e327b26ad52809da99bd89d885b91d4fba44e93bd0ad1da2f"), b.blockHeader.hash());
-        Assert.assertEquals(BCTest.mustDecodeHash("a48b8fc5a149250b68ee77606175c23d36d6933c178d5645b5b1d1e89e130207"), b.blockHeader.hashForSig());
-        Assert.assertEquals(new Date(0), b.blockHeader.time());
+        Assert.assertEquals(BCTest.mustDecodeHash("7508682af2b4770e327b26ad52809da99bd89d885b91d4fba44e93bd0ad1da2f"), b.getBlockHeader().hash());
+        Assert.assertEquals(BCTest.mustDecodeHash("a48b8fc5a149250b68ee77606175c23d36d6933c178d5645b5b1d1e89e130207"), b.getBlockHeader().hashForSig());
+        Assert.assertEquals(new Date(0), b.getBlockHeader().time());
     }
 
     @Test

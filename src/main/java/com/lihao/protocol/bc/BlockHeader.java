@@ -7,6 +7,7 @@ import com.lihao.io.WriteTo;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 25/12/2016.
@@ -14,44 +15,113 @@ import java.util.Date;
 public class BlockHeader implements WriteTo {
 
     // Version of the block.
-    public long version;
+    private long version;
 
     // Height of the block in the block chain.
     // Initial block has height 1.
-    public long height;
+    private long height;
 
     // Hash of the previous block in the block chain.
-    public Hash previousBlockHash = new Hash();
+    private Hash previousBlockHash = new Hash();
 
     // Time of the block in milliseconds.
     // Must grow monotonically and can be equal
     // to the time in the previous block.
-    public long timestampMS;
+    private long timestampMS;
 
     // The next three fields constitute the block's "commitment."
 
     // TransactionsMerkleRoot is the root hash of the Merkle binary hash
     // tree formed by the transaction witness hashes of all transactions
     // included in the block.
-    public Hash transactionsMerkleRoot = new Hash();
+    private Hash transactionsMerkleRoot = new Hash();
 
     // AssetsMerkleRoot is the root hash of the Merkle Patricia Tree of
     // the set of unspent outputs with asset version 1 after applying
     // the block.
-    public Hash assetsMerkleRoot = new Hash();
+    private Hash assetsMerkleRoot = new Hash();
 
     // ConsensusProgram is the predicate for validating the next block.
-    public byte[] consensusProgram = new byte[0];
+    private byte[] consensusProgram = new byte[0];
 
     // Witness is a vector of arguments to the previous block's
     // ConsensusProgram for validating this block.
-    public byte[][] witness = new byte[0][];
+    private byte[][] witness = new byte[0][];
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public long getHeight() {
+        return height;
+    }
+
+    public void setHeight(long height) {
+        this.height = height;
+    }
+
+    public Hash getPreviousBlockHash() {
+        return previousBlockHash;
+    }
+
+    public void setPreviousBlockHash(Hash previousBlockHash) {
+        Objects.requireNonNull(previousBlockHash);
+        this.previousBlockHash = previousBlockHash;
+    }
+
+    public long getTimestampMS() {
+        return timestampMS;
+    }
+
+    public void setTimestampMS(long timestampMS) {
+        this.timestampMS = timestampMS;
+    }
+
+    public Hash getTransactionsMerkleRoot() {
+        return transactionsMerkleRoot;
+    }
+
+    public void setTransactionsMerkleRoot(Hash transactionsMerkleRoot) {
+        Objects.requireNonNull(transactionsMerkleRoot);
+        this.transactionsMerkleRoot = transactionsMerkleRoot;
+    }
+
+    public Hash getAssetsMerkleRoot() {
+        return assetsMerkleRoot;
+    }
+
+    public void setAssetsMerkleRoot(Hash assetsMerkleRoot) {
+        Objects.requireNonNull(assetsMerkleRoot);
+        this.assetsMerkleRoot = assetsMerkleRoot;
+    }
+
+    public byte[] getConsensusProgram() {
+        return consensusProgram;
+    }
+
+    public void setConsensusProgram(byte[] consensusProgram) {
+        Objects.requireNonNull(consensusProgram);
+        this.consensusProgram = consensusProgram;
+    }
+
+    public byte[][] getWitness() {
+        return witness;
+    }
+
+    public void setWitness(byte[][] witness) {
+        Objects.requireNonNull(witness);
+        this.witness = witness;
+    }
 
     public BlockHeader() {}
 
     public BlockHeader(long version, long height) {
-        this.version = version;
-        this.height = height;
+        setVersion(version);
+        setHeight(height);
     }
 
     Hash hash() throws IOException {
@@ -80,10 +150,10 @@ public class BlockHeader implements WriteTo {
             default:
                 throw new IOException(String.format("unsupported serialization flags %#x", serFlags));
         }
-        version = BlockChain.readVarInt63(r);
-        height = BlockChain.readVarInt63(r);
+        setVersion(BlockChain.readVarInt63(r));
+        setHeight(BlockChain.readVarInt63(r));
         previousBlockHash.readFull(r);
-        timestampMS = BlockChain.readVarInt63(r);
+        setTimestampMS(BlockChain.readVarInt63(r));
 
         readCommitment(r);
         readWitness(r, serFlags);
@@ -99,14 +169,14 @@ public class BlockHeader implements WriteTo {
         System.arraycopy(commitment, 32, assetsMerkleRoot.getValue(), 0, 32);
 
         ByteArrayInputStream programReader = new ByteArrayInputStream(commitment, 64, commitment.length);
-        consensusProgram = BlockChain.readVarStr31(programReader);
+        setConsensusProgram(BlockChain.readVarStr31(programReader));
     }
 
     private void readWitness(InputStream r, int serFlags) throws IOException {
         if ((serFlags & Block.SerBlockWitness) == Block.SerBlockWitness) {
             byte[] witnesses = BlockChain.readVarStr31(r);
             ByteArrayInputStream witnessReader = new ByteArrayInputStream(witnesses);
-            witness = BCUtil.readDyadicArray(witnessReader);
+            setWitness(BCUtil.readDyadicArray(witnessReader));
         }
     }
 
@@ -114,7 +184,7 @@ public class BlockHeader implements WriteTo {
         writeTo(w, Block.SerBlockHeader);
     }
 
-    void writeForSigTo(OutputStream w) throws IOException {
+    private void writeForSigTo(OutputStream w) throws IOException {
         writeTo(w, Block.SerBlockSigHash);
     }
 

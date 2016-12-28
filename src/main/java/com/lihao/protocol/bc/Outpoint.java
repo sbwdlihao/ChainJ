@@ -5,26 +5,44 @@ import com.lihao.encoding.blockchain.BlockChain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
  */
 public class Outpoint {
 
-    public Hash hash = new Hash();
+    private Hash hash = new Hash();
 
-    public int index;
+    private int index;
+
+    public Hash getHash() {
+        return hash;
+    }
+
+    public void setHash(Hash hash) {
+        Objects.requireNonNull(hash);
+        this.hash = hash;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
     public Outpoint() {}
 
     public Outpoint(Hash hash, int index) {
-        this.hash = hash;
-        this.index = index;
+        setHash(hash);
+        setIndex(index);
     }
 
     public void readFrom(InputStream r, int[] nOut) throws IOException {
         hash.readFull(r, nOut);
-        index = BlockChain.readVarInt31(r, nOut);
+        setIndex(BlockChain.readVarInt31(r, nOut));
     }
 
     public int writeTo(OutputStream w) throws IOException {

@@ -142,7 +142,7 @@ public class TransactionTest {
             byte[] got = BCTest.serialize(aCase.tx);
             byte[] want = Hex.decode(aCase.hex);
             Assert.assertArrayEquals(want, got);
-            Assert.assertEquals(aCase.hash, aCase.tx.hash);
+            Assert.assertEquals(aCase.hash, aCase.tx.getHash());
             Assert.assertEquals(aCase.witnessHash, aCase.tx.witnessHash());
         }
     }

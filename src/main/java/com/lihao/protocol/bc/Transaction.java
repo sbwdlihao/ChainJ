@@ -7,6 +7,7 @@ import com.lihao.io.WriteTo;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
@@ -34,15 +35,33 @@ public class Transaction implements WriteTo{
         }
     }
 
-    public TxData txData = new TxData();
+    private TxData txData = new TxData();
 
-    public Hash hash = new Hash();
+    private Hash hash = new Hash();
+
+    public TxData getTxData() {
+        return txData;
+    }
+
+    public void setTxData(TxData txData) {
+        Objects.requireNonNull(txData);
+        this.txData = txData;
+    }
+
+    public Hash getHash() {
+        return hash;
+    }
+
+    public void setHash(Hash hash) {
+        Objects.requireNonNull(hash);
+        this.hash = hash;
+    }
 
     public Transaction() {}
 
     public Transaction(TxData txData) throws IOException {
-        this.txData = txData;
-        this.hash = txData.hash();
+        setTxData(txData);
+        setHash(txData.hash());
     }
 
     public void writeTo(OutputStream w) throws IOException {

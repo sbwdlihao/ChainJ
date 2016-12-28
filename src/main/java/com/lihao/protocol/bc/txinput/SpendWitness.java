@@ -7,17 +7,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public class SpendWitness implements InputWitness {
 
-    public byte[][] arguments = new byte[0][];
+    private byte[][] arguments = new byte[0][];
+
+    public byte[][] getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(byte[][] arguments) {
+        Objects.requireNonNull(arguments);
+        this.arguments = arguments;
+    }
 
     @Override
     public void readFrom(InputStream r) throws IOException {
-        arguments = BCUtil.readDyadicArray(r);
+        setArguments(BCUtil.readDyadicArray(r));
     }
 
     @Override

@@ -10,19 +10,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public class IssuanceWitness extends SpendWitness implements InputWitness {
 
-    public Hash initialBlockHash = new Hash();
+    private Hash initialBlockHash = new Hash();
 
-    public long vmVersion;
+    private long vmVersion;
 
-    public byte[] issuanceProgram = new byte[0];
+    private byte[] issuanceProgram = new byte[0];
 
     private IssuanceInputCommitment inputCommitment;
+
+    public Hash getInitialBlockHash() {
+        return initialBlockHash;
+    }
+
+    public void setInitialBlockHash(Hash initialBlockHash) {
+        Objects.requireNonNull(initialBlockHash);
+        this.initialBlockHash = initialBlockHash;
+    }
+
+    public long getVmVersion() {
+        return vmVersion;
+    }
+
+    public void setVmVersion(long vmVersion) {
+        this.vmVersion = vmVersion;
+    }
+
+    public byte[] getIssuanceProgram() {
+        return issuanceProgram;
+    }
+
+    public void setIssuanceProgram(byte[] issuanceProgram) {
+        Objects.requireNonNull(issuanceProgram);
+        this.issuanceProgram = issuanceProgram;
+    }
 
     public IssuanceWitness(IssuanceInputCommitment inputCommitment) {
         this.inputCommitment = inputCommitment;
@@ -32,10 +59,10 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
     public void readFrom(InputStream r) throws IOException {
         // readFull IssuanceInput witness
         initialBlockHash.readFull(r);
-        vmVersion = BlockChain.readVarInt63(r);
-        issuanceProgram = BlockChain.readVarStr31(r);
+        setVmVersion(BlockChain.readVarInt63(r));
+        setIssuanceProgram(BlockChain.readVarStr31(r));
         AssetID computedAssetID = AssetID.computeAssetID(issuanceProgram, initialBlockHash, vmVersion);
-        if (computedAssetID != inputCommitment.assetID) {
+        if (!computedAssetID.equals(inputCommitment.getAssetID())) {
             throw new BadAssetIDException("asset ID does not match other issuance parameters");
         }
         super.readFrom(r);

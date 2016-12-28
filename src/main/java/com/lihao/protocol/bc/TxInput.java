@@ -5,22 +5,59 @@ import com.lihao.encoding.blockchain.BlockChain;
 import com.lihao.protocol.bc.txinput.EmptyTxInput;
 import com.lihao.protocol.bc.txinput.IssuanceInput;
 import com.lihao.protocol.bc.txinput.SpendInput;
+import com.lihao.protocol.state.Output;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public abstract class TxInput {
 
-    public long assetVersion;
+    protected long assetVersion;
 
-    public InputCommitment inputCommitment;
+    protected InputCommitment inputCommitment;
 
-    public byte[] referenceData = new byte[0];
+    protected byte[] referenceData = new byte[0];
 
-    public InputWitness inputWitness;
+    protected InputWitness inputWitness;
+
+    public long getAssetVersion() {
+        return assetVersion;
+    }
+
+    public void setAssetVersion(long assetVersion) {
+        this.assetVersion = assetVersion;
+    }
+
+    public InputCommitment getInputCommitment() {
+        return inputCommitment;
+    }
+
+    public void setInputCommitment(InputCommitment inputCommitment) {
+        Objects.requireNonNull(inputCommitment);
+        this.inputCommitment = inputCommitment;
+    }
+
+    public byte[] getReferenceData() {
+        return referenceData;
+    }
+
+    public void setReferenceData(byte[] referenceData) {
+        Objects.requireNonNull(referenceData);
+        this.referenceData = referenceData;
+    }
+
+    public InputWitness getInputWitness() {
+        return inputWitness;
+    }
+
+    public void setInputWitness(InputWitness inputWitness) {
+        Objects.requireNonNull(inputWitness);
+        this.inputWitness = inputWitness;
+    }
 
     public static TxInput readFrom(InputStream r, long txVersion) throws IOException {
         TxInput txInput = new EmptyTxInput();
@@ -39,8 +76,8 @@ public abstract class TxInput {
                 throw new IOException("unrecognized extra data in input commitment for transaction version 1");
             }
         }
-        txInput.assetVersion = assetVersion;
-        txInput.referenceData = BlockChain.readVarStr31(r);
+        txInput.setAssetVersion(assetVersion);
+        txInput.setReferenceData(BlockChain.readVarStr31(r));
         byte[] inputWitness = BlockChain.readVarStr31(r);
         ByteArrayInputStream iwBuf = new ByteArrayInputStream(inputWitness);
         txInput.inputWitness.readFrom(iwBuf);
@@ -60,10 +97,28 @@ public abstract class TxInput {
         }
     }
 
+    public Output prevOutput() {
+        AssetAmount assetAmount = assetAmount();
+        TxOutput txOutput = new TxOutput(assetAmount.getAssetID(), assetAmount.getAmount(), controlProgram(), new byte[0]);
+        return new Output(outpoint(), txOutput);
+    }
+
     public Hash witnessHash() throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         inputWitness.writeTo(buf);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
+    }
+
+    protected AssetAmount assetAmount() {
+        return new AssetAmount();
+    }
+
+    protected byte[] controlProgram() {
+        return new byte[0];
+    }
+
+    protected Outpoint outpoint() {
+        return new Outpoint();
     }
 
     private static TxInput createTxInput(int icType) throws IOException {

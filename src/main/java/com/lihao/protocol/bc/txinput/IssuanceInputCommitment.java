@@ -8,31 +8,58 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
 public class IssuanceInputCommitment implements InputCommitment {
 
-    public byte[] nonce = new byte[0];
+    private byte[] nonce = new byte[0];
 
-    // Note: as long as we require serflags=0x7, we don't need to
+    // Note: as long as we require serFlags=0x7, we don't need to
     // explicitly store the asset ID here even though it's technically
     // part of the input commitment. We can compute it instead from
-    // values in the witness (which, with serflags other than 0x7,
+    // values in the witness (which, with serFlags other than 0x7,
     // might not be present).
-    public AssetID assetID = new AssetID();
+    private AssetID assetID = new AssetID();
 
-    public long amount;
+    private long amount;
+
+    public byte[] getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(byte[] nonce) {
+        Objects.requireNonNull(nonce);
+        this.nonce = nonce;
+    }
+
+    public AssetID getAssetID() {
+        return assetID;
+    }
+
+    public void setAssetID(AssetID assetID) {
+        Objects.requireNonNull(assetID);
+        this.assetID = assetID;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(long amount) {
+        this.amount = amount;
+    }
 
     public IssuanceInputCommitment(){}
 
     @Override
     public int readFrom(InputStream r, long txVersion) throws IOException {
         int[] n = new int[1];
-        nonce = BlockChain.readVarStr31(r, n);
+        setNonce(BlockChain.readVarStr31(r, n));
         assetID.readFull(r, n);
-        amount = BlockChain.readVarInt63(r, n);
+        setAmount(BlockChain.readVarInt63(r, n));
         return n[0];
     }
 

@@ -30,13 +30,13 @@ public class SigHasher {
         BlockChain.writeVarInt31(buf, idx);
 
         Hash outHash = Hash.emptyHash;
-        if (txData.inputs != null && txData.inputs.length > idx) {
-            TxInput txInput = txData.inputs[idx];
+        if (txData.getInputs() != null && txData.getInputs().length > idx) {
+            TxInput txInput = txData.getInputs()[idx];
             if (txInput instanceof SpendInput) {
                 ByteArrayOutputStream ocBuf = new ByteArrayOutputStream();
                 SpendInputCommitment inputCommitment = (SpendInputCommitment)txInput.inputCommitment;
-                if (inputCommitment != null && inputCommitment.outputCommitment != null) {
-                    inputCommitment.outputCommitment.writeTo(ocBuf, txInput.assetVersion);
+                if (inputCommitment != null && inputCommitment.getOutputCommitment() != null) {
+                    inputCommitment.getOutputCommitment().writeTo(ocBuf, txInput.assetVersion);
                     outHash = new Hash(Sha3.Sum256(ocBuf.toByteArray()));
                 }
             }

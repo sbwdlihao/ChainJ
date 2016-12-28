@@ -6,24 +6,51 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
  */
 public class TxOutput {
 
-    public long assetVersion;
+    private long assetVersion;
 
-    public OutputCommitment outputCommitment = new OutputCommitment();
+    private OutputCommitment outputCommitment = new OutputCommitment();
 
-    public byte[] referenceData = new byte[0];
+    private byte[] referenceData = new byte[0];
+
+    public long getAssetVersion() {
+        return assetVersion;
+    }
+
+    public void setAssetVersion(long assetVersion) {
+        this.assetVersion = assetVersion;
+    }
+
+    public OutputCommitment getOutputCommitment() {
+        return outputCommitment;
+    }
+
+    public void setOutputCommitment(OutputCommitment outputCommitment) {
+        Objects.requireNonNull(outputCommitment);
+        this.outputCommitment = outputCommitment;
+    }
+
+    public byte[] getReferenceData() {
+        return referenceData;
+    }
+
+    public void setReferenceData(byte[] referenceData) {
+        Objects.requireNonNull(referenceData);
+        this.referenceData = referenceData;
+    }
 
     public TxOutput(){}
 
     public TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
-        this.assetVersion = 1;
-        this.outputCommitment = new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram);
-        this.referenceData = referenceData;
+        setAssetVersion(1);
+        setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
+        setReferenceData(referenceData);
     }
 
     Hash witnessHash() {
@@ -32,9 +59,9 @@ public class TxOutput {
 
     public static TxOutput readFrom(InputStream r, long txVersion) throws IOException {
         TxOutput txOutput = new TxOutput();
-        txOutput.assetVersion = BlockChain.readVarInt63(r);
+        txOutput.setAssetVersion(BlockChain.readVarInt63(r));
         txOutput.outputCommitment.readFrom(r, txVersion, txOutput.assetVersion);
-        txOutput.referenceData = BlockChain.readVarStr31(r);
+        txOutput.setReferenceData(BlockChain.readVarStr31(r));
         // readFull and ignore the (empty) output witness
         BlockChain.readVarStr31(r);
         return txOutput;
@@ -47,7 +74,7 @@ public class TxOutput {
         BlockChain.writeVarStr31(w, null);
     }
 
-    void writeCommitment(OutputStream w) throws IOException {
+    private void writeCommitment(OutputStream w) throws IOException {
         outputCommitment.writeTo(w, assetVersion);
     }
 
