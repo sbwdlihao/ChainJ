@@ -117,7 +117,7 @@ public abstract class TxInput {
         return new byte[0];
     }
 
-    protected Outpoint outpoint() {
+    public Outpoint outpoint() {
         return new Outpoint();
     }
 

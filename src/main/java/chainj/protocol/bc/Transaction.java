@@ -57,6 +57,10 @@ public class Transaction implements WriteTo {
         this.hash = hash;
     }
 
+    public TxInput[] getInputs() {
+        return txData.getInputs();
+    }
+
     public Transaction() {}
 
     public Transaction(TxData txData) throws IOException {

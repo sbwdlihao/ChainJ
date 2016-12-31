@@ -45,6 +45,14 @@ public class Block implements WriteTo{
         this.transactions = transactions;
     }
 
+    public long getHeight() {
+        return blockHeader.getHeight();
+    }
+
+    public Hash getHash() throws IOException {
+        return blockHeader.hash();
+    }
+
     public Block() {}
 
     public Block(BlockHeader blockHeader) {

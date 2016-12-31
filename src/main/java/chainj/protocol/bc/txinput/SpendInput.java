@@ -35,7 +35,7 @@ public class SpendInput extends TxInput {
     }
 
     @Override
-    protected Outpoint outpoint() {
+    public Outpoint outpoint() {
         return ((SpendInputCommitment)this.inputCommitment).getOutpoint();
     }
 }
