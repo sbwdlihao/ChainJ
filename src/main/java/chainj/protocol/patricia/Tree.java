@@ -19,19 +19,15 @@ public class Tree {
 
     private Node root;
 
-    public Node getRoot() {
+    Node getRoot() {
         return root;
-    }
-
-    public void setRoot(Node root) {
-        this.root = root;
     }
 
     public Tree() {
     }
 
-    public Tree(Node root) {
-        setRoot(root);
+    Tree(Node root) {
+        this.root = root;
     }
 
     // Insert enters data into the tree.
@@ -41,19 +37,19 @@ public class Tree {
     // If the key is present, the existing node is found
     // and its value is updated, leaving the structure of
     // the tree alone.
-    public void insert(byte[] key, byte[] value) {
+    void insert(byte[] key, byte[] value) {
         int[] bitKey = PatriciaUtil.bitKey(key);
         Hash hash = valueHash(value);
 
         if (root == null) {
-            setRoot(new Node(bitKey, hash, true));
+            root = new Node(bitKey, hash, true);
             return;
         }
 
-        setRoot(insert(root, bitKey, hash));
+        root = insert(root, bitKey, hash);
     }
 
-    public boolean contains(byte[] key, byte[] value) {
+    boolean contains(byte[] key, byte[] value) {
         if (root == null) {
             return false;
         }
@@ -65,12 +61,12 @@ public class Tree {
     // Delete removes up to one value with a matching key.
     // After removing the node, it will rearrange the tree
     // to the optimal structure.
-    public void delete(byte[] key) {
+    void delete(byte[] key) {
         int[] bitKey = PatriciaUtil.bitKey(key);
         if (root == null) {
             return;
         }
-        setRoot(delete(root, bitKey));
+        root = delete(root, bitKey);
     }
 
     // copy returns a new tree with the same root as this tree. It
@@ -152,7 +148,7 @@ public class Tree {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         buf.write(leafPrefix);
         buf.write(value, 0, value.length);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 
     @Override

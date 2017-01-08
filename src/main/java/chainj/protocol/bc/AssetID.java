@@ -4,7 +4,6 @@ import chainj.crypto.Sha3;
 import chainj.encoding.blockchain.BlockChain;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -39,6 +38,6 @@ public class AssetID extends AbstractHash {
         BlockChain.writeVarInt63(io, assetVersion);
         BlockChain.writeVarInt63(io, vmVersion);
         BlockChain.writeVarStr31(io, issuanceProgram);
-        return new AssetID(Sha3.Sum256(io.toByteArray()));
+        return new AssetID(Sha3.sum256(io.toByteArray()));
     }
 }

@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 /**
  * Created by sbwdlihao on 23/12/2016.
  */
-public class BCTest {
+class BCTest {
 
     static byte[] serialize(WriteTo wo) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();

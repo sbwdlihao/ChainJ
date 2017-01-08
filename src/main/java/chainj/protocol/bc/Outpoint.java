@@ -29,20 +29,16 @@ public class Outpoint {
         return index;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     public Outpoint() {}
 
     public Outpoint(Hash hash, int index) {
         setHash(hash);
-        setIndex(index);
+        this.index = index;
     }
 
     public void readFrom(InputStream r, int[] nOut) throws IOException {
         hash.readFull(r, nOut);
-        setIndex(BlockChain.readVarInt31(r, nOut));
+        index = BlockChain.readVarInt31(r, nOut);
     }
 
     public int writeTo(ByteArrayOutputStream w) {
@@ -58,8 +54,7 @@ public class Outpoint {
 
         Outpoint outpoint = (Outpoint) o;
 
-        if (index != outpoint.index) return false;
-        return hash != null ? hash.equals(outpoint.hash) : outpoint.hash == null;
+        return index == outpoint.index && (hash != null ? hash.equals(outpoint.hash) : outpoint.hash == null);
     }
 
     @Override

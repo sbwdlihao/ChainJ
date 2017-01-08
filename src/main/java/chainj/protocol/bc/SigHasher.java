@@ -3,7 +3,6 @@ package chainj.protocol.bc;
 import chainj.crypto.Sha3;
 import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.txinput.SpendInput;
-import chainj.protocol.bc.txinput.SpendInputCommitment;
 
 import java.io.ByteArrayOutputStream;
 
@@ -33,14 +32,12 @@ public class SigHasher {
             TxInput txInput = txData.getInputs()[idx];
             if (txInput instanceof SpendInput) {
                 ByteArrayOutputStream ocBuf = new ByteArrayOutputStream();
-                SpendInputCommitment inputCommitment = (SpendInputCommitment)txInput.inputCommitment;
-                if (inputCommitment != null && inputCommitment.getOutputCommitment() != null) {
-                    inputCommitment.getOutputCommitment().writeTo(ocBuf, txInput.assetVersion);
-                    outHash = new Hash(Sha3.Sum256(ocBuf.toByteArray()));
-                }
+                SpendInput spendInput = (SpendInput)txInput;
+                spendInput.getOutputCommitment().writeTo(ocBuf, txInput.getAssetVersion());
+                outHash = new Hash(Sha3.sum256(ocBuf.toByteArray()));
             }
         }
         buf.write(outHash.getValue(), 0, outHash.getValue().length);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 }

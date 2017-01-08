@@ -11,7 +11,11 @@ import java.util.Arrays;
  */
 public abstract class AbstractHash {
 
-    protected byte[] value;
+    byte[] value;
+
+    public byte[] getValue() {
+        return value;
+    }
 
     public void readFull(InputStream in) throws IOException {
         int n = in.read(value);
@@ -30,10 +34,6 @@ public abstract class AbstractHash {
         if (n != value.length) {
             throw new IOException("read not full");
         }
-    }
-
-    public byte[] getValue() {
-        return value;
     }
 
     @Override

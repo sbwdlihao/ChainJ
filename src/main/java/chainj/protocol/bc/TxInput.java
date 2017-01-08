@@ -23,7 +23,7 @@ public abstract class TxInput {
 
     protected InputCommitment inputCommitment;
 
-    protected byte[] referenceData = new byte[0];
+    private byte[] referenceData = new byte[0];
 
     protected InputWitness inputWitness;
 
@@ -31,15 +31,7 @@ public abstract class TxInput {
         return assetVersion;
     }
 
-    public void setAssetVersion(long assetVersion) {
-        this.assetVersion = assetVersion;
-    }
-
-    public InputCommitment getInputCommitment() {
-        return inputCommitment;
-    }
-
-    public void setInputCommitment(InputCommitment inputCommitment) {
+    protected void setInputCommitment(InputCommitment inputCommitment) {
         Objects.requireNonNull(inputCommitment);
         this.inputCommitment = inputCommitment;
     }
@@ -48,16 +40,12 @@ public abstract class TxInput {
         return referenceData;
     }
 
-    public void setReferenceData(byte[] referenceData) {
+    protected void setReferenceData(byte[] referenceData) {
         Objects.requireNonNull(referenceData);
         this.referenceData = referenceData;
     }
 
-    public InputWitness getInputWitness() {
-        return inputWitness;
-    }
-
-    public void setInputWitness(InputWitness inputWitness) {
+    protected void setInputWitness(InputWitness inputWitness) {
         Objects.requireNonNull(inputWitness);
         this.inputWitness = inputWitness;
     }
@@ -79,7 +67,7 @@ public abstract class TxInput {
                 throw new IOException("unrecognized extra data in input commitment for transaction version 1");
             }
         }
-        txInput.setAssetVersion(assetVersion);
+        txInput.assetVersion = assetVersion;
         txInput.setReferenceData(BlockChain.readVarStr31(r));
         byte[] inputWitness = BlockChain.readVarStr31(r);
         ByteArrayInputStream iwBuf = new ByteArrayInputStream(inputWitness);
@@ -106,10 +94,18 @@ public abstract class TxInput {
         return new Output(outpoint(), txOutput);
     }
 
-    public Hash witnessHash() {
+    Hash witnessHash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         inputWitness.writeTo(buf);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
+    }
+
+    public AssetID assertID() {
+        return assetAmount().getAssetID();
+    }
+
+    public long amount() {
+        return assetAmount().getAmount();
     }
 
     protected AssetAmount assetAmount() {
@@ -146,11 +142,10 @@ public abstract class TxInput {
 
         TxInput txInput = (TxInput) o;
 
-        if (assetVersion != txInput.assetVersion) return false;
-        if (inputCommitment != null ? !inputCommitment.equals(txInput.inputCommitment) : txInput.inputCommitment != null)
-            return false;
-        if (!Arrays.equals(referenceData, txInput.referenceData)) return false;
-        return inputWitness != null ? inputWitness.equals(txInput.inputWitness) : txInput.inputWitness == null;
+        return assetVersion == txInput.assetVersion &&
+                (inputCommitment != null ? inputCommitment.equals(txInput.inputCommitment) : txInput.inputCommitment == null) &&
+                Arrays.equals(referenceData, txInput.referenceData) &&
+                (inputWitness != null ? inputWitness.equals(txInput.inputWitness) : txInput.inputWitness == null);
     }
 
     @Override

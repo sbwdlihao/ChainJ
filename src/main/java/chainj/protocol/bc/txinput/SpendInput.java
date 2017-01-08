@@ -7,8 +7,12 @@ import chainj.protocol.bc.*;
  */
 public class SpendInput extends TxInput {
 
+    public OutputCommitment getOutputCommitment() {
+        return ((SpendInputCommitment)inputCommitment).getOutputCommitment();
+    }
+
     public SpendInput(Hash txHash, int index, byte[][] arguments, AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
-        setAssetVersion(1);
+        assetVersion = 1;
         setReferenceData(referenceData);
         SpendInputCommitment inputCommitment = new SpendInputCommitment(this);
         SpendWitness inputWitness = new SpendWitness();
@@ -26,16 +30,16 @@ public class SpendInput extends TxInput {
 
     @Override
     protected AssetAmount assetAmount() {
-        return ((SpendInputCommitment)this.inputCommitment).getOutputCommitment().getAssetAmount();
+        return ((SpendInputCommitment)inputCommitment).getOutputCommitment().getAssetAmount();
     }
 
     @Override
     protected byte[] controlProgram() {
-        return ((SpendInputCommitment)this.inputCommitment).getOutputCommitment().getControlProgram();
+        return ((SpendInputCommitment)inputCommitment).getOutputCommitment().getControlProgram();
     }
 
     @Override
     public Outpoint outpoint() {
-        return ((SpendInputCommitment)this.inputCommitment).getOutpoint();
+        return ((SpendInputCommitment)inputCommitment).getOutpoint();
     }
 }

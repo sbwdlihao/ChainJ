@@ -51,92 +51,45 @@ public class BlockHeader implements WriteTo {
     // ConsensusProgram for validating this block.
     private byte[][] witness = new byte[0][];
 
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    public long getHeight() {
+    long getHeight() {
         return height;
     }
 
-    public void setHeight(long height) {
-        this.height = height;
-    }
-
-    public Hash getPreviousBlockHash() {
-        return previousBlockHash;
-    }
-
-    public void setPreviousBlockHash(Hash previousBlockHash) {
-        Objects.requireNonNull(previousBlockHash);
-        this.previousBlockHash = previousBlockHash;
-    }
-
-    public long getTimestampMS() {
+    long getTimestampMS() {
         return timestampMS;
     }
 
-    public void setTimestampMS(long timestampMS) {
-        this.timestampMS = timestampMS;
-    }
-
-    public Hash getTransactionsMerkleRoot() {
-        return transactionsMerkleRoot;
-    }
-
-    public void setTransactionsMerkleRoot(Hash transactionsMerkleRoot) {
-        Objects.requireNonNull(transactionsMerkleRoot);
-        this.transactionsMerkleRoot = transactionsMerkleRoot;
-    }
-
-    public Hash getAssetsMerkleRoot() {
-        return assetsMerkleRoot;
-    }
-
-    public void setAssetsMerkleRoot(Hash assetsMerkleRoot) {
-        Objects.requireNonNull(assetsMerkleRoot);
-        this.assetsMerkleRoot = assetsMerkleRoot;
-    }
-
-    public byte[] getConsensusProgram() {
+    byte[] getConsensusProgram() {
         return consensusProgram;
     }
 
-    public void setConsensusProgram(byte[] consensusProgram) {
+    private void setConsensusProgram(byte[] consensusProgram) {
         Objects.requireNonNull(consensusProgram);
         this.consensusProgram = consensusProgram;
     }
 
-    public byte[][] getWitness() {
-        return witness;
-    }
-
-    public void setWitness(byte[][] witness) {
+    private void setWitness(byte[][] witness) {
         Objects.requireNonNull(witness);
         this.witness = witness;
     }
 
-    public BlockHeader() {}
+    BlockHeader() {}
 
-    public BlockHeader(long version, long height) {
-        setVersion(version);
-        setHeight(height);
+    BlockHeader(long version, long height) {
+        this.version = version;
+        this.height = height;
     }
 
     Hash hash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeTo(buf);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 
     Hash hashForSig() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeForSigTo(buf);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 
     Date time() {
@@ -153,10 +106,10 @@ public class BlockHeader implements WriteTo {
             default:
                 throw new IOException(String.format("unsupported serialization flags %#x", serFlags));
         }
-        setVersion(BlockChain.readVarInt63(r));
-        setHeight(BlockChain.readVarInt63(r));
+        version = BlockChain.readVarInt63(r);
+        height = BlockChain.readVarInt63(r);
         previousBlockHash.readFull(r);
-        setTimestampMS(BlockChain.readVarInt63(r));
+        timestampMS = BlockChain.readVarInt63(r);
 
         readCommitment(r);
         readWitness(r, serFlags);
@@ -224,17 +177,14 @@ public class BlockHeader implements WriteTo {
 
         BlockHeader that = (BlockHeader) o;
 
-        if (version != that.version) return false;
-        if (height != that.height) return false;
-        if (timestampMS != that.timestampMS) return false;
-        if (previousBlockHash != null ? !previousBlockHash.equals(that.previousBlockHash) : that.previousBlockHash != null)
-            return false;
-        if (transactionsMerkleRoot != null ? !transactionsMerkleRoot.equals(that.transactionsMerkleRoot) : that.transactionsMerkleRoot != null)
-            return false;
-        if (assetsMerkleRoot != null ? !assetsMerkleRoot.equals(that.assetsMerkleRoot) : that.assetsMerkleRoot != null)
-            return false;
-        if (!Arrays.equals(consensusProgram, that.consensusProgram)) return false;
-        return Arrays.deepEquals(witness, that.witness);
+        return version == that.version &&
+                height == that.height &&
+                timestampMS == that.timestampMS &&
+                (previousBlockHash != null ? previousBlockHash.equals(that.previousBlockHash) : that.previousBlockHash == null) &&
+                (transactionsMerkleRoot != null ? transactionsMerkleRoot.equals(that.transactionsMerkleRoot) : that.transactionsMerkleRoot == null) &&
+                (assetsMerkleRoot != null ? assetsMerkleRoot.equals(that.assetsMerkleRoot) : that.assetsMerkleRoot == null) &&
+                Arrays.equals(consensusProgram, that.consensusProgram) &&
+                Arrays.deepEquals(witness, that.witness);
     }
 
     @Override

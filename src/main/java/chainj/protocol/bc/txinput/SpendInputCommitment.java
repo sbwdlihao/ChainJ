@@ -20,25 +20,25 @@ public class SpendInputCommitment implements InputCommitment {
 
     private SpendInput spendInput;
 
-    public Outpoint getOutpoint() {
+    Outpoint getOutpoint() {
         return outpoint;
     }
 
-    public void setOutpoint(Outpoint outpoint) {
+    void setOutpoint(Outpoint outpoint) {
         Objects.requireNonNull(outpoint);
         this.outpoint = outpoint;
     }
 
-    public OutputCommitment getOutputCommitment() {
+    OutputCommitment getOutputCommitment() {
         return outputCommitment;
     }
 
-    public void setOutputCommitment(OutputCommitment outputCommitment) {
+    void setOutputCommitment(OutputCommitment outputCommitment) {
         Objects.requireNonNull(outputCommitment);
         this.outputCommitment = outputCommitment;
     }
 
-    public SpendInputCommitment(SpendInput spendInput) {
+    SpendInputCommitment(SpendInput spendInput) {
         this.spendInput = spendInput;
     }
 
@@ -64,8 +64,8 @@ public class SpendInputCommitment implements InputCommitment {
 
         SpendInputCommitment that = (SpendInputCommitment) o;
 
-        if (outpoint != null ? !outpoint.equals(that.outpoint) : that.outpoint != null) return false;
-        return outputCommitment != null ? outputCommitment.equals(that.outputCommitment) : that.outputCommitment == null;
+        return (outpoint != null ? outpoint.equals(that.outpoint) : that.outpoint == null) &&
+                (outputCommitment != null ? outputCommitment.equals(that.outputCommitment) : that.outputCommitment == null);
     }
 
     @Override

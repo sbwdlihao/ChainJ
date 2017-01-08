@@ -27,20 +27,16 @@ public class Block implements WriteTo{
 
     private Transaction[] transactions = new Transaction[0];
 
-    public BlockHeader getBlockHeader() {
+    BlockHeader getBlockHeader() {
         return blockHeader;
     }
 
-    public void setBlockHeader(BlockHeader blockHeader) {
+    private void setBlockHeader(BlockHeader blockHeader) {
         Objects.requireNonNull(blockHeader);
         this.blockHeader = blockHeader;
     }
 
-    public Transaction[] getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(Transaction[] transactions) {
+    private void setTransactions(Transaction[] transactions) {
         Objects.requireNonNull(blockHeader);
         this.transactions = transactions;
     }
@@ -53,13 +49,25 @@ public class Block implements WriteTo{
         return blockHeader.hash();
     }
 
+    public byte[] getConsensusProgram() {
+        return blockHeader.getConsensusProgram();
+    }
+
+    public long getTimestampMS() {
+        return blockHeader.getTimestampMS();
+    }
+
+    public Hash hashForSig() {
+        return blockHeader.hashForSig();
+    }
+
     public Block() {}
 
-    public Block(BlockHeader blockHeader) {
+    Block(BlockHeader blockHeader) {
         setBlockHeader(blockHeader);
     }
 
-    public Block(BlockHeader blockHeader, Transaction[] transactions) {
+    Block(BlockHeader blockHeader, Transaction[] transactions) {
         setBlockHeader(blockHeader);
         setTransactions(transactions);
     }
@@ -98,8 +106,8 @@ public class Block implements WriteTo{
 
         Block block = (Block) o;
 
-        if (blockHeader != null ? !blockHeader.equals(block.blockHeader) : block.blockHeader != null) return false;
-        return Arrays.equals(transactions, block.transactions);
+        return (blockHeader != null ? blockHeader.equals(block.blockHeader) : block.blockHeader == null) &&
+                Arrays.equals(transactions, block.transactions);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class Transaction implements WriteTo {
         return txData;
     }
 
-    public void setTxData(TxData txData) {
+    private void setTxData(TxData txData) {
         Objects.requireNonNull(txData);
         this.txData = txData;
     }
@@ -50,13 +50,29 @@ public class Transaction implements WriteTo {
         return hash;
     }
 
-    public void setHash(Hash hash) {
+    private void setHash(Hash hash) {
         Objects.requireNonNull(hash);
         this.hash = hash;
     }
 
+    public byte[] getReferenceData() {
+        return txData.getReferenceData();
+    }
+
     public TxInput[] getInputs() {
         return txData.getInputs();
+    }
+
+    public TxOutput[] getOutputs() {
+        return txData.getOutputs();
+    }
+
+    public long getMinTime() {
+        return txData.getMinTime();
+    }
+
+    public long getMaxTime() {
+        return txData.getMaxTime();
     }
 
     public Transaction() {}
@@ -70,13 +86,13 @@ public class Transaction implements WriteTo {
         txData.writeTo(w, SerRequired);
     }
 
-    public Hash witnessHash() {
+    Hash witnessHash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         buf.write(hash.getValue(), 0, hash.getValue().length);
 
         txData.writeInputsWitnessTo(buf);
         txData.writeOutputsWitnessTo(buf);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 
     @Override
@@ -86,8 +102,8 @@ public class Transaction implements WriteTo {
 
         Transaction that = (Transaction) o;
 
-        if (txData != null ? !txData.equals(that.txData) : that.txData != null) return false;
-        return hash != null ? hash.equals(that.hash) : that.hash == null;
+        return (txData != null ? txData.equals(that.txData) : that.txData == null) &&
+                (hash != null ? hash.equals(that.hash) : that.hash == null);
     }
 
     @Override

@@ -24,33 +24,37 @@ public class OutputCommitment {
         return assetAmount;
     }
 
-    public void setAssetAmount(AssetAmount assetAmount) {
+    private void setAssetAmount(AssetAmount assetAmount) {
         Objects.requireNonNull(assetAmount);
         this.assetAmount = assetAmount;
     }
 
-    public long getVmVersion() {
+    long getVmVersion() {
         return vmVersion;
-    }
-
-    public void setVmVersion(long vmVersion) {
-        this.vmVersion = vmVersion;
     }
 
     public byte[] getControlProgram() {
         return controlProgram;
     }
 
-    public void setControlProgram(byte[] controlProgram) {
+    private void setControlProgram(byte[] controlProgram) {
         Objects.requireNonNull(controlProgram);
         this.controlProgram = controlProgram;
+    }
+
+    AssetID getAssetID() {
+        return assetAmount.getAssetID();
+    }
+
+    long getAmount() {
+        return assetAmount.getAmount();
     }
 
     public OutputCommitment() {}
 
     public OutputCommitment(AssetAmount assetAmount, long vmVersion, byte[] controlProgram) {
         setAssetAmount(assetAmount);
-        setVmVersion(vmVersion);
+        this.vmVersion = vmVersion;
         setControlProgram(controlProgram);
     }
 
@@ -66,7 +70,7 @@ public class OutputCommitment {
         InputStream in = new ByteArrayInputStream(b);
         int[] n1 = new int[1];
         assetAmount.readFrom(in, n1);
-        setVmVersion(BlockChain.readVarInt63(in, n1));
+        vmVersion = BlockChain.readVarInt63(in, n1);
         setControlProgram(BlockChain.readVarStr31(in, n1));
         if (txVersion == 1 && n1[0] < b.length) {
             throw new IOException("unrecognized extra data in output commitment for transaction version 1");
@@ -90,9 +94,9 @@ public class OutputCommitment {
 
         OutputCommitment that = (OutputCommitment) o;
 
-        if (vmVersion != that.vmVersion) return false;
-        if (assetAmount != null ? !assetAmount.equals(that.assetAmount) : that.assetAmount != null) return false;
-        return Arrays.equals(controlProgram, that.controlProgram);
+        return vmVersion == that.vmVersion &&
+                (assetAmount != null ? assetAmount.equals(that.assetAmount) : that.assetAmount == null) &&
+                Arrays.equals(controlProgram, that.controlProgram);
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.digests.SHA3Digest;
  */
 public class Sha3 {
 
-    public static byte[] Sum256(byte[] data) {
+    public static byte[] sum256(byte[] data) {
         // todo 这里创建digest需要进行性能优化，同时要注意线程安全
         Digest digest = new SHA3Digest(); // 256位
         if (data != null) {

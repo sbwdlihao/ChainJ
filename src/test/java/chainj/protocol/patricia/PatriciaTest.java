@@ -212,8 +212,8 @@ public class PatriciaTest {
 
     private static void makeValues(byte[][] values, Hash[] hashes) {
         for (int i = 0; i < values.length; i++) {
-            values[i] = Sha3.Sum256(new byte[]{(byte)i});
-            hashes[i] = new Hash(Sha3.Sum256(Bytes.concat(new byte[]{0x00}, values[i])));
+            values[i] = Sha3.sum256(new byte[]{(byte)i});
+            hashes[i] = new Hash(Sha3.sum256(Bytes.concat(new byte[]{0x00}, values[i])));
         }
     }
 
@@ -235,6 +235,6 @@ public class PatriciaTest {
         buf.write(Tree.interiorPrefix);
         buf.write(a.getValue(), 0, a.getValue().length);
         buf.write(b.getValue(), 0, b.getValue().length);
-        return new Hash(Sha3.Sum256(buf.toByteArray()));
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 }

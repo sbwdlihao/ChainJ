@@ -15,7 +15,7 @@ public class Hash extends AbstractHash{
     static final Hash emptyHash;
 
     static {
-        emptyHash = new Hash(Sha3.Sum256(null));
+        emptyHash = new Hash(Sha3.sum256(null));
     }
 
     public Hash(){
@@ -38,7 +38,7 @@ public class Hash extends AbstractHash{
             BlockChain.writeVarStr31(w, null);
             return;
         }
-        byte[] h = Sha3.Sum256(d);
+        byte[] h = Sha3.sum256(d);
         BlockChain.writeVarStr31(w, h);
     }
 }

@@ -26,40 +26,40 @@ public class IssuanceInputCommitment implements InputCommitment {
 
     private long amount;
 
-    public byte[] getNonce() {
+    byte[] getNonce() {
         return nonce;
     }
 
-    public void setNonce(byte[] nonce) {
+    void setNonce(byte[] nonce) {
         Objects.requireNonNull(nonce);
         this.nonce = nonce;
     }
 
-    public AssetID getAssetID() {
+    AssetID getAssetID() {
         return assetID;
     }
 
-    public void setAssetID(AssetID assetID) {
+    void setAssetID(AssetID assetID) {
         Objects.requireNonNull(assetID);
         this.assetID = assetID;
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    void setAmount(long amount) {
         this.amount = amount;
     }
 
-    public IssuanceInputCommitment(){}
+    IssuanceInputCommitment(){}
 
     @Override
     public int readFrom(InputStream r, long txVersion) throws IOException {
         int[] n = new int[1];
         setNonce(BlockChain.readVarStr31(r, n));
         assetID.readFull(r, n);
-        setAmount(BlockChain.readVarInt63(r, n));
+        amount = BlockChain.readVarInt63(r, n);
         return n[0];
     }
 
@@ -78,9 +78,9 @@ public class IssuanceInputCommitment implements InputCommitment {
 
         IssuanceInputCommitment that = (IssuanceInputCommitment) o;
 
-        if (amount != that.amount) return false;
-        if (!Arrays.equals(nonce, that.nonce)) return false;
-        return assetID != null ? assetID.equals(that.assetID) : that.assetID == null;
+        return amount == that.amount &&
+                Arrays.equals(nonce, that.nonce) &&
+                (assetID != null ? assetID.equals(that.assetID) : that.assetID == null);
     }
 
     @Override

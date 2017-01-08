@@ -24,7 +24,7 @@ public class AssetIDTest {
         buf.write(0x01); // vmVersion
         buf.write(0x01); // length of issuanceScript
         buf.write(issuanceScript, 0, issuanceScript.length);
-        byte[] want = Sha3.Sum256(buf.toByteArray());
+        byte[] want = Sha3.sum256(buf.toByteArray());
         Assert.assertArrayEquals(want, assetID.getValue());
     }
 

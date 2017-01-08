@@ -16,28 +16,24 @@ public class AssetAmount {
 
     private long amount;
 
-    public AssetID getAssetID() {
+    AssetID getAssetID() {
         return assetID;
     }
 
-    public void setAssetID(AssetID assetID) {
+    private void setAssetID(AssetID assetID) {
         Objects.requireNonNull(assetID);
         this.assetID = assetID;
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
-        this.amount = amount;
-    }
-
-    public AssetAmount() {}
+    AssetAmount() {}
 
     public AssetAmount(AssetID assetID, long amount) {
         setAssetID(assetID);
-        setAmount(amount);
+        this.amount = amount;
     }
 
     void readFrom(InputStream in, int[] nOut) throws IOException {
@@ -45,7 +41,7 @@ public class AssetAmount {
         if (nOut[0] != assetID.getValue().length) {
             throw new IOException("cannot readFull full assert id");
         }
-        setAmount(BlockChain.readVarInt63(in, nOut));
+        this.amount = BlockChain.readVarInt63(in, nOut);
     }
 
     void writeTo(ByteArrayOutputStream w) {
@@ -60,8 +56,7 @@ public class AssetAmount {
 
         AssetAmount that = (AssetAmount) o;
 
-        if (amount != that.amount) return false;
-        return assetID != null ? assetID.equals(that.assetID) : that.assetID == null;
+        return amount == that.amount && (assetID != null ? assetID.equals(that.assetID) : that.assetID == null);
     }
 
     @Override

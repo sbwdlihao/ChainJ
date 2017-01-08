@@ -23,15 +23,11 @@ public class TxOutput {
         return assetVersion;
     }
 
-    public void setAssetVersion(long assetVersion) {
-        this.assetVersion = assetVersion;
-    }
-
     public OutputCommitment getOutputCommitment() {
         return outputCommitment;
     }
 
-    public void setOutputCommitment(OutputCommitment outputCommitment) {
+    private void setOutputCommitment(OutputCommitment outputCommitment) {
         Objects.requireNonNull(outputCommitment);
         this.outputCommitment = outputCommitment;
     }
@@ -40,15 +36,31 @@ public class TxOutput {
         return referenceData;
     }
 
-    public void setReferenceData(byte[] referenceData) {
+    private void setReferenceData(byte[] referenceData) {
         Objects.requireNonNull(referenceData);
         this.referenceData = referenceData;
     }
 
-    public TxOutput(){}
+    public AssetID getAssertID() {
+        return outputCommitment.getAssetID();
+    }
 
-    public TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
-        setAssetVersion(1);
+    public long getAmount() {
+        return outputCommitment.getAmount();
+    }
+
+    public long getVmVersion() {
+        return outputCommitment.getVmVersion();
+    }
+
+    public byte[] getControlProgram() {
+        return outputCommitment.getControlProgram();
+    }
+
+    private TxOutput(){}
+
+    TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
+        this.assetVersion = 1;
         setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
         setReferenceData(referenceData);
     }
@@ -59,7 +71,7 @@ public class TxOutput {
 
     public static TxOutput readFrom(InputStream r, long txVersion) throws IOException {
         TxOutput txOutput = new TxOutput();
-        txOutput.setAssetVersion(BlockChain.readVarInt63(r));
+        txOutput.assetVersion = BlockChain.readVarInt63(r);
         txOutput.outputCommitment.readFrom(r, txVersion, txOutput.assetVersion);
         txOutput.setReferenceData(BlockChain.readVarStr31(r));
         // readFull and ignore the (empty) output witness
@@ -85,10 +97,9 @@ public class TxOutput {
 
         TxOutput txOutput = (TxOutput) o;
 
-        if (assetVersion != txOutput.assetVersion) return false;
-        if (outputCommitment != null ? !outputCommitment.equals(txOutput.outputCommitment) : txOutput.outputCommitment != null)
-            return false;
-        return Arrays.equals(referenceData, txOutput.referenceData);
+        return assetVersion == txOutput.assetVersion &&
+                (outputCommitment != null ? outputCommitment.equals(txOutput.outputCommitment) : txOutput.outputCommitment == null) &&
+                Arrays.equals(referenceData, txOutput.referenceData);
     }
 
     @Override

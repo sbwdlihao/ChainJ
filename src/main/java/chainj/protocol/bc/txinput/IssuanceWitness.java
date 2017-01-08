@@ -25,33 +25,21 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
 
     private IssuanceInputCommitment inputCommitment;
 
-    public Hash getInitialBlockHash() {
-        return initialBlockHash;
-    }
-
-    public void setInitialBlockHash(Hash initialBlockHash) {
+    void setInitialBlockHash(Hash initialBlockHash) {
         Objects.requireNonNull(initialBlockHash);
         this.initialBlockHash = initialBlockHash;
     }
 
-    public long getVmVersion() {
-        return vmVersion;
-    }
-
-    public void setVmVersion(long vmVersion) {
+    void setVmVersion(long vmVersion) {
         this.vmVersion = vmVersion;
     }
 
-    public byte[] getIssuanceProgram() {
-        return issuanceProgram;
-    }
-
-    public void setIssuanceProgram(byte[] issuanceProgram) {
+    void setIssuanceProgram(byte[] issuanceProgram) {
         Objects.requireNonNull(issuanceProgram);
         this.issuanceProgram = issuanceProgram;
     }
 
-    public IssuanceWitness(IssuanceInputCommitment inputCommitment) {
+    IssuanceWitness(IssuanceInputCommitment inputCommitment) {
         this.inputCommitment = inputCommitment;
     }
 
@@ -59,7 +47,7 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
     public void readFrom(InputStream r) throws IOException {
         // readFull IssuanceInput witness
         initialBlockHash.readFull(r);
-        setVmVersion(BlockChain.readVarInt63(r));
+        vmVersion = BlockChain.readVarInt63(r);
         setIssuanceProgram(BlockChain.readVarStr31(r));
         AssetID computedAssetID = AssetID.computeAssetID(issuanceProgram, initialBlockHash, vmVersion);
         if (!computedAssetID.equals(inputCommitment.getAssetID())) {
@@ -84,10 +72,9 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
 
         IssuanceWitness that = (IssuanceWitness) o;
 
-        if (vmVersion != that.vmVersion) return false;
-        if (initialBlockHash != null ? !initialBlockHash.equals(that.initialBlockHash) : that.initialBlockHash != null)
-            return false;
-        return Arrays.equals(issuanceProgram, that.issuanceProgram);
+        return vmVersion == that.vmVersion &&
+                (initialBlockHash != null ? initialBlockHash.equals(that.initialBlockHash) : that.initialBlockHash == null) &&
+                Arrays.equals(issuanceProgram, that.issuanceProgram);
     }
 
     @Override

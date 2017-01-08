@@ -10,8 +10,12 @@ import chainj.protocol.bc.TxInput;
  */
 public class IssuanceInput extends TxInput {
 
+    public byte[] getNonce() {
+        return ((IssuanceInputCommitment)inputWitness).getNonce();
+    }
+
     public IssuanceInput(byte[] nonce, AssetID assetID, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments) {
-        setAssetVersion(1);
+        assetVersion = 1;
         setReferenceData(referenceData);
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
         IssuanceWitness inputWitness = new IssuanceWitness(inputCommitment);

@@ -4,7 +4,6 @@ import chainj.crypto.Sha3;
 import chainj.protocol.bc.Hash;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -19,57 +18,50 @@ class Node {
     private boolean isLeaf;
     private Node[] children = new Node[2];
 
-    public int[] getKey() {
+    int[] getKey() {
         return key;
     }
 
-    public void setKey(int[] key) {
-        this.key = key;
-    }
-
-    public Hash getHash() {
+    Hash getHash() {
         return hash;
     }
 
-    public void setHash(Hash hash) {
+    void setHash(Hash hash) {
         this.hash = hash;
     }
 
-    public boolean isLeaf() {
+    boolean isLeaf() {
         return isLeaf;
     }
 
-    public void setLeaf(boolean leaf) {
+    void setLeaf(boolean leaf) {
         isLeaf = leaf;
     }
 
-    public Node[] getChildren() {
+    Node[] getChildren() {
         return children;
     }
 
-    public void setChildren(Node[] children) {
+    private void setChildren(Node[] children) {
         if (children == null || children.length != 2) {
             throw new IllegalArgumentException("children length must be 2");
         }
         this.children = children;
     }
 
-    public Node() {
+    Node(int[] key) {
+        this.key = key;
     }
 
-    public Node(int[] key) {
-        setKey(key);
+    Node(int[] key, Hash hash, boolean isLeaf) {
+        this.key = key;
+        this.hash = hash;
+        this.isLeaf = isLeaf;
     }
 
-    public Node(int[] key, Hash hash, boolean isLeaf) {
-        setKey(key);
-        setHash(hash);
-        setLeaf(isLeaf);
-    }
-
-    public Node(int[] key, Hash hash, Node[] children) {
-        setKey(key);
-        setHash(hash);
+    Node(int[] key, Hash hash, Node[] children) {
+        this.key = key;
+        this.hash = hash;
         setChildren(children);
     }
 
@@ -95,7 +87,7 @@ class Node {
                 buf.write(child.hash().getValue(), 0, child.hash().getValue().length);
             }
         }
-        setHash(new Hash(Sha3.Sum256(buf.toByteArray())));
+        setHash(new Hash(Sha3.sum256(buf.toByteArray())));
     }
 
     @Override
@@ -105,10 +97,10 @@ class Node {
 
         Node node = (Node) o;
 
-        if (isLeaf != node.isLeaf) return false;
-        if (!Arrays.equals(key, node.key)) return false;
-        if (hash != null ? !hash.equals(node.hash) : node.hash != null) return false;
-        return Arrays.equals(children, node.children);
+        return isLeaf == node.isLeaf &&
+                Arrays.equals(key, node.key) &&
+                (hash != null ? hash.equals(node.hash) : node.hash == null) &&
+                Arrays.equals(children, node.children);
     }
 
     @Override
