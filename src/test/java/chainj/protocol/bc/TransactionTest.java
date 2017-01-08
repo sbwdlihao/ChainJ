@@ -1,8 +1,8 @@
 package chainj.protocol.bc;
 
 import chainj.protocol.bc.exception.BadAssetIDException;
-import chainj.protocol.bc.txinput.SpendInput;
 import chainj.protocol.bc.txinput.IssuanceInput;
+import chainj.protocol.bc.txinput.SpendInput;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class TransactionTest {
 
     @Test
-    public void testTransaction() throws IOException {
+    public void testTransaction() {
         byte[] issuanceScript = new byte[]{1};
         String initialBlockHashHex = "03deff1d4319d67baa10a6d26c1fea9c3e8d30e33474efee1a610a9bb49d758d";
         Hash initialBlockHash = BCTest.mustDecodeHash(initialBlockHashHex);
@@ -231,7 +231,7 @@ public class TransactionTest {
     }
 
     @Test
-    public void testTxHashForSig() throws IOException {
+    public void testTxHashForSig() {
         AssetID assetID = AssetID.computeAssetID(new byte[]{1}, BCTest.mustDecodeHash("03deff1d4319d67baa10a6d26c1fea9c3e8d30e33474efee1a610a9bb49d758d"), 1);
         TxData txData = new TxData(1,
                 new TxInput[]{
@@ -251,14 +251,10 @@ public class TransactionTest {
         SigHasher sigHasher = new SigHasher(txData);
 
         cases.forEach((k,v)->{
-            try {
-                Hash hash = txData.hashForSig(k);
-                Assert.assertEquals(v, hash.toString());
-                Hash cachedHash = sigHasher.hash(k);
-                Assert.assertEquals(v, cachedHash.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Hash hash = txData.hashForSig(k);
+            Assert.assertEquals(v, hash.toString());
+            Hash cachedHash = sigHasher.hash(k);
+            Assert.assertEquals(v, cachedHash.toString());
         });
     }
 

@@ -2,7 +2,10 @@ package chainj.protocol.bc;
 
 import chainj.encoding.blockchain.BlockChain;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -70,7 +73,7 @@ public class OutputCommitment {
         }
     }
 
-    public void writeTo(OutputStream w, long assetVersion) throws IOException {
+    public void writeTo(ByteArrayOutputStream w, long assetVersion) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         if (assetVersion == 1) {
             assetAmount.writeTo(buf);

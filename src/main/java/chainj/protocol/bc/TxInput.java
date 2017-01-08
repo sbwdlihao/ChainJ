@@ -1,13 +1,16 @@
 package chainj.protocol.bc;
 
 import chainj.crypto.Sha3;
-import chainj.protocol.bc.txinput.SpendInput;
-import chainj.protocol.state.Output;
 import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.txinput.EmptyTxInput;
 import chainj.protocol.bc.txinput.IssuanceInput;
+import chainj.protocol.bc.txinput.SpendInput;
+import chainj.protocol.state.Output;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -84,7 +87,7 @@ public abstract class TxInput {
         return txInput;
     }
 
-    public void writeTo(OutputStream w, int serFlags) throws IOException {
+    public void writeTo(ByteArrayOutputStream w, int serFlags) {
         BlockChain.writeVarInt63(w, assetVersion);
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         inputCommitment.writeTo(buf);
@@ -103,7 +106,7 @@ public abstract class TxInput {
         return new Output(outpoint(), txOutput);
     }
 
-    public Hash witnessHash() throws IOException {
+    public Hash witnessHash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         inputWitness.writeTo(buf);
         return new Hash(Sha3.Sum256(buf.toByteArray()));

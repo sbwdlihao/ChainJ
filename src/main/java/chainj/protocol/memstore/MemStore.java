@@ -6,7 +6,6 @@ import chainj.protocol.state.Snapshot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -66,8 +65,6 @@ public class MemStore implements Store{
                 throw new IllegalArgumentException("already have a block at getHeight " + height);
             }
             blocks.put(height, block);
-        } catch (IOException e) {
-            logger.error(e);
         } finally {
             blocksLock.unlock();
         }

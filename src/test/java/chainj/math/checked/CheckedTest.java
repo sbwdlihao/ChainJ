@@ -46,6 +46,12 @@ public class CheckedTest {
         assertThatThrownBy(() -> Checked.modInt64(1, 0)).isInstanceOf(ArithmeticException.class);
         assertThatThrownBy(() -> Checked.modInt64(Long.MIN_VALUE, -1)).isInstanceOf(ArithmeticException.class);
 
+        assertThat(Checked.floorModInt64(-17, 6)).isEqualTo(1);
+        assertThat(Checked.floorModInt64(17, 6)).isEqualTo(5);
+        assertThat(Checked.floorModInt64(17, -6)).isEqualTo(-1);
+        assertThatThrownBy(() -> Checked.floorModInt64(1, 0)).isInstanceOf(ArithmeticException.class);
+        assertThatThrownBy(() -> Checked.floorModInt64(Long.MIN_VALUE, -1)).isInstanceOf(ArithmeticException.class);
+
         assertThat(Checked.negateInt64(1)).isEqualTo(-1);
         assertThat(Checked.negateInt64(-1)).isEqualTo(1);
         assertThat(Checked.negateInt64(0)).isEqualTo(0);

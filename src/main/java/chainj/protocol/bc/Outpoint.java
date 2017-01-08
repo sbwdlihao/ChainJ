@@ -2,9 +2,9 @@ package chainj.protocol.bc;
 
 import chainj.encoding.blockchain.BlockChain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -45,8 +45,8 @@ public class Outpoint {
         setIndex(BlockChain.readVarInt31(r, nOut));
     }
 
-    public int writeTo(OutputStream w) throws IOException {
-        w.write(hash.getValue());
+    public int writeTo(ByteArrayOutputStream w) {
+        w.write(hash.getValue(), 0, hash.getValue().length);
         int n = BlockChain.writeVarInt31(w, index);
         return hash.getValue().length + n;
     }

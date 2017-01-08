@@ -4,7 +4,10 @@ import chainj.crypto.Sha3;
 import chainj.encoding.blockchain.BlockChain;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -128,14 +131,14 @@ public class TxData {
         setReferenceData(BlockChain.readVarStr31(r));
     }
 
-    Hash hash() throws IOException {
+    Hash hash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeTo(buf, (byte) 0);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 
     // assumes w has sticky errors
-    void writeTo(OutputStream w, int serFlags) throws IOException {
+    void writeTo(ByteArrayOutputStream w, int serFlags) {
         w.write(serFlags);
         BlockChain.writeVarInt63(w, getVersion());
 
@@ -161,7 +164,7 @@ public class TxData {
         return false;
     }
 
-    Hash hashForSig(int idx) throws IOException {
+    Hash hashForSig(int idx) {
         return new SigHasher(this).hash(idx);
     }
 
@@ -199,38 +202,38 @@ public class TxData {
         }
     }
 
-    private void writeCommonFields(OutputStream w) throws IOException {
+    private void writeCommonFields(ByteArrayOutputStream w) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         BlockChain.writeVarInt63(buf, minTime);
         BlockChain.writeVarInt63(buf, maxTime);
         BlockChain.writeVarStr31(w, buf.toByteArray());
     }
 
-    private void writeInputsTo(OutputStream w, int serFlags) throws IOException {
+    private void writeInputsTo(ByteArrayOutputStream w, int serFlags) {
         BlockChain.writeVarInt31(w, inputs.length);
         for (TxInput input : inputs) {
             input.writeTo(w, serFlags);
         }
     }
 
-    private void writeOutputsTo(OutputStream w, int serFlags) throws IOException {
+    private void writeOutputsTo(ByteArrayOutputStream w, int serFlags) {
         BlockChain.writeVarInt31(w, outPuts.length);
         for (TxOutput outPut : outPuts) {
             outPut.writeTo(w, serFlags);
         }
     }
 
-    void writeInputsWitnessTo(OutputStream w) throws IOException {
+    void writeInputsWitnessTo(ByteArrayOutputStream w) {
         BlockChain.writeVarInt31(w, inputs.length);
         for (TxInput input : inputs) {
-            w.write(input.witnessHash().getValue());
+            w.write(input.witnessHash().getValue(), 0, input.witnessHash().getValue().length);
         }
     }
 
-    void writeOutputsWitnessTo(OutputStream w) throws IOException {
+    void writeOutputsWitnessTo(ByteArrayOutputStream w) {
         BlockChain.writeVarInt31(w, outPuts.length);
         for (TxOutput outPut : outPuts) {
-            w.write(outPut.witnessHash().getValue());
+            w.write(outPut.witnessHash().getValue(), 0, outPut.witnessHash().getValue().length);
         }
     }
 

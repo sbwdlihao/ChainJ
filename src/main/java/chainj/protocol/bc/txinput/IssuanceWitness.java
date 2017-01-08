@@ -1,14 +1,14 @@
 package chainj.protocol.bc.txinput;
 
+import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.AssetID;
 import chainj.protocol.bc.Hash;
 import chainj.protocol.bc.InputWitness;
 import chainj.protocol.bc.exception.BadAssetIDException;
-import chainj.encoding.blockchain.BlockChain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -69,8 +69,8 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
     }
 
     @Override
-    public void writeTo(OutputStream w) throws IOException {
-        w.write(initialBlockHash.getValue());
+    public void writeTo(ByteArrayOutputStream w) {
+        w.write(initialBlockHash.getValue(), 0, initialBlockHash.getValue().length);
         BlockChain.writeVarInt63(w, vmVersion);
         BlockChain.writeVarStr31(w, issuanceProgram);
         super.writeTo(w);

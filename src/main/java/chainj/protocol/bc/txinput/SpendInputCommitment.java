@@ -4,9 +4,9 @@ import chainj.protocol.bc.InputCommitment;
 import chainj.protocol.bc.Outpoint;
 import chainj.protocol.bc.OutputCommitment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -51,8 +51,8 @@ public class SpendInputCommitment implements InputCommitment {
     }
 
     @Override
-    public void writeTo(OutputStream w) throws IOException {
-        w.write(new byte[]{1}); // spend type
+    public void writeTo(ByteArrayOutputStream w) {
+        w.write(1); // spend type
         outpoint.writeTo(w);
         outputCommitment.writeTo(w, spendInput.getAssetVersion());
     }

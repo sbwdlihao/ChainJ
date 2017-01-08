@@ -2,9 +2,9 @@ package chainj.protocol.bc;
 
 import chainj.encoding.blockchain.BlockChain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -67,14 +67,14 @@ public class TxOutput {
         return txOutput;
     }
 
-    void writeTo(OutputStream w, int serFlags) throws IOException {
+    void writeTo(ByteArrayOutputStream w, int serFlags) {
         BlockChain.writeVarInt63(w, assetVersion);
         writeCommitment(w);
         Transaction.writeRefData(w, referenceData, serFlags);
         BlockChain.writeVarStr31(w, null);
     }
 
-    private void writeCommitment(OutputStream w) throws IOException {
+    private void writeCommitment(ByteArrayOutputStream w) {
         outputCommitment.writeTo(w, assetVersion);
     }
 

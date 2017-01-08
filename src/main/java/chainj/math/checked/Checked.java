@@ -6,6 +6,11 @@ package chainj.math.checked;
 public class Checked {
 
     // a + b
+    public static int addInt32(int a, int b) {
+        return Math.addExact(a, b);
+    }
+
+    // a + b
     public static long addInt64(long a, long b) {
         return Math.addExact(a, b);
     }
@@ -34,6 +39,14 @@ public class Checked {
             throw  new ArithmeticException("long overflow");
         }
         return a % b;
+    }
+
+    // floorMode(a, b)
+    public static long floorModInt64(long a, long b) {
+        if (b == 0 || a == Long.MIN_VALUE && b == -1) {
+            throw  new ArithmeticException("long overflow");
+        }
+        return Math.floorMod(a, b);
     }
 
     // -a

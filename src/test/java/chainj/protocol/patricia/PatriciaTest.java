@@ -1,15 +1,14 @@
 package chainj.protocol.patricia;
 
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Ints;
 import chainj.crypto.Sha3;
 import chainj.protocol.bc.Hash;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Ints;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -18,7 +17,7 @@ import java.util.Arrays;
 public class PatriciaTest {
 
     @Test
-    public void testRootHashBug() throws IOException {
+    public void testRootHashBug() {
         Tree tr = new Tree();
         tr.insert(new byte[]{(byte)0x94}, new byte[]{(byte)0x01});
         tr.insert(new byte[]{(byte)0x36}, new byte[]{(byte)0x02});
@@ -29,7 +28,7 @@ public class PatriciaTest {
     }
 
     @Test
-    public void testLeafVsInternalNodes() throws IOException {
+    public void testLeafVsInternalNodes() {
         Tree tr0 = new Tree();
         tr0.insert(new byte[]{(byte)0x01}, new byte[]{(byte)0x01});
         tr0.insert(new byte[]{(byte)0x02}, new byte[]{(byte)0x02});
@@ -44,7 +43,7 @@ public class PatriciaTest {
     }
 
     @Test
-    public void testInsert() throws IOException {
+    public void testInsert() {
         byte[][] values = new byte[6][];
         Hash[] hashes = new Hash[6];
         makeValues(values, hashes);
@@ -112,7 +111,7 @@ public class PatriciaTest {
     }
 
     @Test
-    public void testLookup() throws IOException {
+    public void testLookup() {
         byte[][] values = new byte[5][];
         Hash[] hashes = new Hash[5];
         makeValues(values, hashes);
@@ -144,7 +143,7 @@ public class PatriciaTest {
     }
 
     @Test
-    public void testContains() throws IOException {
+    public void testContains() {
         byte[][] values = new byte[4][];
         Hash[] hashes = new Hash[4];
         makeValues(values, hashes);
@@ -162,7 +161,7 @@ public class PatriciaTest {
     }
 
     @Test
-    public void testDelete() throws IOException {
+    public void testDelete() {
         byte[][] values = new byte[4][];
         Hash[] hashes = new Hash[4];
         makeValues(values, hashes);
@@ -231,11 +230,11 @@ public class PatriciaTest {
         return Ints.concat(b1, b2);
     }
 
-    private static Hash hashForNonLeaf(Hash a, Hash b) throws IOException {
+    private static Hash hashForNonLeaf(Hash a, Hash b) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         buf.write(Tree.interiorPrefix);
-        buf.write(a.getValue());
-        buf.write(b.getValue());
+        buf.write(a.getValue(), 0, a.getValue().length);
+        buf.write(b.getValue(), 0, b.getValue().length);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 }

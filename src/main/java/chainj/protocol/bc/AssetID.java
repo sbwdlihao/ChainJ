@@ -30,12 +30,12 @@ public class AssetID extends AbstractHash {
 
     // ComputeAssetID computes the asset ID of the asset defined by
     // the given issuance program and initial block hash.
-    public static AssetID computeAssetID(byte[] issuanceProgram, Hash initialBlockHash, long vmVersion) throws IOException {
+    public static AssetID computeAssetID(byte[] issuanceProgram, Hash initialBlockHash, long vmVersion) {
         Objects.requireNonNull(issuanceProgram);
         Objects.requireNonNull(initialBlockHash);
 
         ByteArrayOutputStream io = new ByteArrayOutputStream();
-        io.write(initialBlockHash.getValue());
+        io.write(initialBlockHash.getValue(), 0, initialBlockHash.getValue().length);
         BlockChain.writeVarInt63(io, assetVersion);
         BlockChain.writeVarInt63(io, vmVersion);
         BlockChain.writeVarStr31(io, issuanceProgram);

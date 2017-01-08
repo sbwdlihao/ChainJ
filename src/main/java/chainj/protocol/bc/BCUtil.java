@@ -2,9 +2,9 @@ package chainj.protocol.bc;
 
 import chainj.encoding.blockchain.BlockChain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by sbwdlihao on 25/12/2016.
@@ -28,7 +28,7 @@ public class BCUtil {
         return arguments;
     }
     
-    public static void writeDyadicArray(OutputStream w, byte[][] arguments) throws IOException {
+    public static void writeDyadicArray(ByteArrayOutputStream w, byte[][] arguments) {
         if (arguments != null) {
             BlockChain.writeVarInt31(w, arguments.length);
             for (byte[] argument : arguments) {

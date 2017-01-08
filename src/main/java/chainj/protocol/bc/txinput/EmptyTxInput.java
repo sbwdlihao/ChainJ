@@ -4,9 +4,9 @@ import chainj.protocol.bc.InputCommitment;
 import chainj.protocol.bc.InputWitness;
 import chainj.protocol.bc.TxInput;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
@@ -25,7 +25,7 @@ public class EmptyTxInput extends TxInput {
         }
 
         @Override
-        public void writeTo(OutputStream w) throws IOException {
+        public void writeTo(ByteArrayOutputStream w) {
         }
     }
 
@@ -36,7 +36,7 @@ public class EmptyTxInput extends TxInput {
         }
 
         @Override
-        public void writeTo(OutputStream w) throws IOException {
+        public void writeTo(ByteArrayOutputStream w) {
 
         }
     }

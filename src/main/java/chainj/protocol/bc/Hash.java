@@ -4,8 +4,7 @@ import chainj.crypto.Sha3;
 import chainj.encoding.blockchain.BlockChain;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by sbwdlihao on 21/12/2016.
@@ -34,7 +33,7 @@ public class Hash extends AbstractHash{
         return new String(Hex.encode(value));
     }
 
-    static void writeFastHash(OutputStream w, byte[] d) throws IOException {
+    static void writeFastHash(ByteArrayOutputStream w, byte[] d) {
         if (d == null || d.length == 0) {
             BlockChain.writeVarStr31(w, null);
             return;

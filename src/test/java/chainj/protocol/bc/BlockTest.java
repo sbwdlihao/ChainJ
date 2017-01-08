@@ -67,7 +67,7 @@ public class BlockTest {
     }
 
     @Test
-    public void testEmptyBlock() throws IOException {
+    public void testEmptyBlock() {
         Block b = new Block(new BlockHeader(Block.NewBlockVersion, 1));
         byte[] got = BCTest.serialize(b);
         String wantHex = "03" + // serialization flags
@@ -106,7 +106,7 @@ public class BlockTest {
     }
 
     @Test
-    public void testSmallBlock() throws IOException {
+    public void testSmallBlock() {
         Block b = new Block(new BlockHeader(Block.NewBlockVersion, 1), new Transaction[]{
                 new Transaction(new TxData(Transaction.CurrentTransactionVersion))
         });

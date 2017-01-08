@@ -4,9 +4,9 @@ import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.AssetID;
 import chainj.protocol.bc.InputCommitment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -64,10 +64,10 @@ public class IssuanceInputCommitment implements InputCommitment {
     }
 
     @Override
-    public void writeTo(OutputStream w) throws IOException {
-        w.write(new byte[]{0}); // issuance type
+    public void writeTo(ByteArrayOutputStream w) {
+        w.write(0); // issuance type
         BlockChain.writeVarStr31(w, nonce);
-        w.write(assetID.getValue());
+        w.write(assetID.getValue(), 0, assetID.getValue().length);
         BlockChain.writeVarInt63(w, amount);
     }
 

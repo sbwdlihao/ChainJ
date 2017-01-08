@@ -43,7 +43,7 @@ public class Output {
     // OutputTreeItem returns the key of an output in the state tree,
     // as well as the output commitment (a second []byte) for Inserts
     // into the state tree.
-    public void outputTreeItem(ByteArrayOutputStream outpointKey, ByteArrayOutputStream commitment) throws IOException {
+    public void outputTreeItem(ByteArrayOutputStream outpointKey, ByteArrayOutputStream commitment) {
         outpoint.writeTo(outpointKey);
         txOutput.getOutputCommitment().writeTo(commitment, txOutput.getAssetVersion());
     }

@@ -5,7 +5,6 @@ import chainj.protocol.bc.Hash;
 import com.google.common.primitives.Ints;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -42,7 +41,7 @@ public class Tree {
     // If the key is present, the existing node is found
     // and its value is updated, leaving the structure of
     // the tree alone.
-    public void insert(byte[] key, byte[] value) throws IOException {
+    public void insert(byte[] key, byte[] value) {
         int[] bitKey = PatriciaUtil.bitKey(key);
         Hash hash = valueHash(value);
 
@@ -54,7 +53,7 @@ public class Tree {
         setRoot(insert(root, bitKey, hash));
     }
 
-    public boolean contains(byte[] key, byte[] value) throws IOException {
+    public boolean contains(byte[] key, byte[] value) {
         if (root == null) {
             return false;
         }
@@ -142,17 +141,17 @@ public class Tree {
         return lookup(node.getChildren()[branch], key);
     }
 
-    Hash rootHash() throws IOException {
+    Hash rootHash() {
         if (root == null) {
             return new Hash();
         }
         return root.hash();
     }
 
-    private Hash valueHash(byte[] value) throws IOException {
+    private Hash valueHash(byte[] value) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         buf.write(leafPrefix);
-        buf.write(value);
+        buf.write(value, 0, value.length);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 

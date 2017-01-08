@@ -2,9 +2,9 @@ package chainj.encoding.blockchain;
 
 import chainj.encoding.VarInt;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by sbwdlihao on 09/12/2016.
@@ -51,7 +51,7 @@ public class BlockChain {
         return str;
     }
 
-    public static int writeVarInt31(OutputStream out, long val) throws IOException {
+    public static int writeVarInt31(ByteArrayOutputStream out, long val) {
         if (val > Integer.MAX_VALUE || val < 0) {
             throw new ArithmeticException("value out of range");
         }
@@ -62,7 +62,7 @@ public class BlockChain {
         return n;
     }
 
-    public static int writeVarInt63(OutputStream out, long val) throws IOException {
+    public static int writeVarInt63(ByteArrayOutputStream out, long val) {
         if (val < 0) {
             throw new ArithmeticException("value out of range");
         }
@@ -73,14 +73,14 @@ public class BlockChain {
         return n;
     }
 
-    public static int writeVarStr31(OutputStream io, byte[] str) throws IOException {
+    public static int writeVarStr31(ByteArrayOutputStream io, byte[] str) {
         int length = 0;
         if (str != null) {
             length = str.length;
         }
         int n = writeVarInt31(io, length);
         if (str != null) {
-            io.write(str);
+            io.write(str, 0, str.length);
         }
         return n + length;
     }

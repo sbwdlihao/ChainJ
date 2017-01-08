@@ -3,9 +3,9 @@ package chainj.protocol.bc.txinput;
 import chainj.protocol.bc.BCUtil;
 import chainj.protocol.bc.InputWitness;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ public class SpendWitness implements InputWitness {
     }
 
     @Override
-    public void writeTo(OutputStream w) throws IOException {
+    public void writeTo(ByteArrayOutputStream w) {
         BCUtil.writeDyadicArray(w, arguments);
     }
 

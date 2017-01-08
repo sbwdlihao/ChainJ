@@ -1,11 +1,8 @@
 package chainj.crypto.ed25519.chainkd;
 
-import net.i2p.crypto.eddsa.EdDSAEngine;
-import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import net.i2p.crypto.eddsa.math.GroupElement;
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
-import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.security.InvalidKeyException;
@@ -57,16 +54,11 @@ public class XPub {
     }
 
     public boolean verify(byte[] msg, byte[] sig) throws InvalidKeyException, SignatureException {
-        EdDSAEngine engine = new EdDSAEngine();
-        engine.initVerify(publicKey());
-        engine.update(msg);
-        return engine.verify(sig);
+        return Util.verify(edDSAPublicKey(), msg, sig);
     }
 
     public PublicKey publicKey() {
-        EdDSANamedCurveSpec edc = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.CURVE_ED25519_SHA512);
-        byte[] pk = Arrays.copyOfRange(data, 0, 32);
-        return new EdDSAPublicKey(new EdDSAPublicKeySpec(pk, edc));
+        return Util.newEdDSAPublicKey(edDSAPublicKey());
     }
 
     public byte[] marshalText() {
@@ -82,5 +74,9 @@ public class XPub {
 
     public String toString() {
         return new String(marshalText());
+    }
+
+    private byte[] edDSAPublicKey() {
+        return Arrays.copyOfRange(data, 0, 32);
     }
 }

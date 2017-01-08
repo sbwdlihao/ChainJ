@@ -2,9 +2,9 @@ package chainj.protocol.bc;
 
 import chainj.encoding.blockchain.BlockChain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -48,8 +48,8 @@ public class AssetAmount {
         setAmount(BlockChain.readVarInt63(in, nOut));
     }
 
-    void writeTo(OutputStream w) throws IOException {
-        w.write(assetID.getValue());
+    void writeTo(ByteArrayOutputStream w) {
+        w.write(assetID.getValue(), 0, assetID.getValue().length);
         BlockChain.writeVarInt63(w, amount);
     }
 

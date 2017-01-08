@@ -19,9 +19,7 @@ public class UtilTest {
   public void setup() {
     byte[] entropy = new byte[32];
     xPrv = Util.newXPrv(entropy);
-    if (xPrv != null) {
-      xPub = xPrv.xPub();
-    }
+    xPub = xPrv.xPub();
   }
 
   @Test
@@ -37,7 +35,7 @@ public class UtilTest {
   }
 
   @Test
-  public void testNewXprv() {
+  public void testNewXPrv() {
     byte[] xPrvData = xPrv.bytes();
     Assert.assertEquals(64, xPrvData.length);
     Assert.assertEquals(120, xPrvData[0] & 0xff);

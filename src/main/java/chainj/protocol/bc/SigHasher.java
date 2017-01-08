@@ -1,12 +1,11 @@
 package chainj.protocol.bc;
 
 import chainj.crypto.Sha3;
-import chainj.protocol.bc.txinput.SpendInput;
 import chainj.encoding.blockchain.BlockChain;
+import chainj.protocol.bc.txinput.SpendInput;
 import chainj.protocol.bc.txinput.SpendInputCommitment;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * Created by sbwdlihao on 24/12/2016.
@@ -21,12 +20,12 @@ public class SigHasher {
         this.txData = txData;
     }
 
-    Hash hash(int idx) throws IOException {
+    public Hash hash(int idx) {
         if (txHash == null) {
             txHash = txData.hash();
         }
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        buf.write(txHash.getValue());
+        buf.write(txHash.getValue(), 0, txHash.getValue().length);
         BlockChain.writeVarInt31(buf, idx);
 
         Hash outHash = Hash.emptyHash;
@@ -41,7 +40,7 @@ public class SigHasher {
                 }
             }
         }
-        buf.write(outHash.getValue());
+        buf.write(outHash.getValue(), 0, outHash.getValue().length);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 }

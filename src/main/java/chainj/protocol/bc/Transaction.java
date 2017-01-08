@@ -1,12 +1,10 @@
 package chainj.protocol.bc;
 
 import chainj.crypto.Sha3;
-import chainj.io.WriteTo;
 import chainj.encoding.blockchain.BlockChain;
+import chainj.io.WriteTo;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -27,7 +25,7 @@ public class Transaction implements WriteTo {
     static final int SerValid = 0x07;
     static final int SerRequired = 0x07; // we support only this combination of flags
 
-    static void writeRefData(OutputStream w, byte[] data, int serFlags) throws IOException {
+    static void writeRefData(ByteArrayOutputStream w, byte[] data, int serFlags) {
         if ((serFlags & SerMetadata) != 0) {
             BlockChain.writeVarStr31(w, data);
         } else {
@@ -63,18 +61,18 @@ public class Transaction implements WriteTo {
 
     public Transaction() {}
 
-    public Transaction(TxData txData) throws IOException {
+    public Transaction(TxData txData) {
         setTxData(txData);
         setHash(txData.hash());
     }
 
-    public void writeTo(OutputStream w) throws IOException {
+    public void writeTo(ByteArrayOutputStream w) {
         txData.writeTo(w, SerRequired);
     }
 
-    public Hash witnessHash() throws IOException {
+    public Hash witnessHash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        buf.write(hash.getValue());
+        buf.write(hash.getValue(), 0, hash.getValue().length);
 
         txData.writeInputsWitnessTo(buf);
         txData.writeOutputsWitnessTo(buf);

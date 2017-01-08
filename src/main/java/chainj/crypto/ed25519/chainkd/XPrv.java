@@ -5,10 +5,10 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -77,26 +77,22 @@ public class XPrv {
         byte[] h = Util.hashKeySalt((byte) 2, key, salt);
         EdDSANamedCurveSpec edc = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.CURVE_ED25519_SHA512);
         GroupElement p3 = edc.getB().scalarMultiply(key);
-        byte[] pubkey = p3.toByteArray();
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (NoSuchAlgorithmException e) {
-            logger.catching(e);
-            return null;
-        }
-        md.update(h, 0, 32);
-        md.update(msg);
-        byte[] r = md.digest();
+        byte[] pubKey = p3.toByteArray();
+        Digest digest = new SHA512Digest();
+        digest.update(h, 0, 32);
+        digest.update(msg, 0, msg.length);
+        byte[] r = new byte[digest.getDigestSize()];
+        digest.doFinal(r, 0);
         byte[] rReduced = edc.getScalarOps().reduce(r);
         p3 = edc.getB().scalarMultiply(rReduced);
         byte[] R = p3.toByteArray();
 
-        md.reset();
-        md.update(R);
-        md.update(pubkey);
-        md.update(msg);
-        byte[] k = md.digest();
+        digest.reset();
+        digest.update(R, 0, R.length);
+        digest.update(pubKey, 0, pubKey.length);
+        digest.update(msg, 0, msg.length);
+        byte[] k = new byte[digest.getDigestSize()];
+        digest.doFinal(k, 0);
         byte[] kReduced = edc.getScalarOps().reduce(k);
         byte[] S = edc.getScalarOps().multiplyAndAdd(kReduced, key, rReduced);
         byte[] sign = new byte[R.length + S.length]; // 64个字节

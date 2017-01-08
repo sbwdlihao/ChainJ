@@ -79,12 +79,12 @@ class Node {
     }
 
     // Hash will return the hash for this node.
-    Hash hash() throws IOException {
+    Hash hash() {
         calcHash();
         return hash;
     }
 
-    private void calcHash() throws IOException {
+    private void calcHash() {
         if (hash != null) {
             return;
         }
@@ -92,7 +92,7 @@ class Node {
         buf.write(Tree.interiorPrefix);
         for (Node child : children) {
             if (child != null) {
-                buf.write(child.hash().getValue());
+                buf.write(child.hash().getValue(), 0, child.hash().getValue().length);
             }
         }
         setHash(new Hash(Sha3.Sum256(buf.toByteArray())));

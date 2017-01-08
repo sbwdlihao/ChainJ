@@ -1,14 +1,21 @@
 package chainj.crypto.ed25519.chainkd;
 
 import chainj.encoding.VarInt;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.InvalidKeyException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.Random;
 
 /**
@@ -37,18 +44,14 @@ public class Util {
         if (entropy.length != 32) {
             throw new IllegalArgumentException("entropy length should be 32");
         }
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (NoSuchAlgorithmException e) {
-            logger.catching(e);
-            return null;
-        }
-        md.update("Chain seed".getBytes());
-        md.update(entropy);
-        byte[] digest = md.digest();
-        modifyScalar(digest);
-        return new XPrv(digest);
+        Digest digest = new SHA512Digest();
+        byte[] flag = "Chain seed".getBytes();
+        digest.update(flag, 0, flag.length);
+        digest.update(entropy, 0, entropy.length);
+        byte[] out = new byte[digest.getDigestSize()];
+        digest.doFinal(out, 0);
+        modifyScalar(out);
+        return new XPrv(out);
     }
 
     public static PublicKey[] xPubKeys(XPub[] xpubs) {
@@ -67,40 +70,43 @@ public class Util {
         return res;
     }
 
+    public static EdDSAPublicKey newEdDSAPublicKey(byte[] pubKey) {
+        EdDSANamedCurveSpec edc = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.CURVE_ED25519_SHA512);
+        return new EdDSAPublicKey(new EdDSAPublicKeySpec(pubKey, edc));
+    }
+
+    public static boolean verify(byte[] pubKey, byte[] msg, byte[] sig) throws InvalidKeyException, SignatureException {
+        EdDSAEngine engine = new EdDSAEngine();
+        engine.initVerify(newEdDSAPublicKey(pubKey));
+        engine.update(msg);
+        return engine.verify(sig);
+    }
+
     static byte[] hashKeySaltSelector(byte version, byte[] key, byte[] salt, byte[] sel) {
-        MessageDigest helper = hashKeySaltHelper(version, key, salt);
-        if (helper == null) {
-            return null;
-        }
+        Digest helper = hashKeySaltHelper(version, key, salt);
         byte[] l = new byte[10];
         int n = VarInt.putUVarInt(l, sel.length);
         helper.update(l, 0, n);
-        helper.update(sel);
-        byte[] out = helper.digest();
+        helper.update(sel, 0, sel.length);
+        byte[] out = new byte[helper.getDigestSize()];
+        helper.doFinal(out, 0);
         modifyScalar(out);
         return out;
     }
 
     static byte[] hashKeySalt(byte version, byte[] key, byte[] salt) {
-        MessageDigest helper = hashKeySaltHelper(version, key, salt);
-        if (helper == null) {
-            return null;
-        }
-        return helper.digest();
+        Digest helper = hashKeySaltHelper(version, key, salt);
+        byte[] out = new byte[helper.getDigestSize()];
+        helper.doFinal(out, 0);
+        return out;
     }
 
-    private static MessageDigest hashKeySaltHelper(byte version, byte[] key, byte[] salt) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (NoSuchAlgorithmException e) {
-            logger.catching(e);
-            return null;
-        }
-        md.update(version);
-        md.update(key);
-        md.update(salt);
-        return md;
+    private static Digest hashKeySaltHelper(byte version, byte[] key, byte[] salt) {
+        Digest digest = new SHA512Digest();
+        digest.update(version);
+        digest.update(key, 0, key.length);
+        digest.update(salt, 0, salt.length);
+        return digest;
     }
 
     private static void modifyScalar(byte[] digest) {

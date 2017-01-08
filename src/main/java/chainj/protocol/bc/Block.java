@@ -3,9 +3,9 @@ package chainj.protocol.bc;
 import chainj.encoding.blockchain.BlockChain;
 import chainj.io.WriteTo;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -49,7 +49,7 @@ public class Block implements WriteTo{
         return blockHeader.getHeight();
     }
 
-    public Hash getHash() throws IOException {
+    public Hash getHash() {
         return blockHeader.hash();
     }
 
@@ -77,11 +77,11 @@ public class Block implements WriteTo{
         }
     }
 
-    public void writeTo(OutputStream w) throws IOException {
+    public void writeTo(ByteArrayOutputStream w) {
         writeTo(w, SerBlockFull);
     }
 
-    void writeTo(OutputStream w, int serFlags) throws IOException {
+    void writeTo(ByteArrayOutputStream w, int serFlags) {
         blockHeader.writeTo(w, serFlags);
         if ((serFlags & SerBlockTransactions) == SerBlockTransactions) {
             BlockChain.writeVarInt31(w, transactions.length);

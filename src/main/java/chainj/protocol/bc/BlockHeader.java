@@ -1,10 +1,13 @@
 package chainj.protocol.bc;
 
 import chainj.crypto.Sha3;
-import chainj.io.WriteTo;
 import chainj.encoding.blockchain.BlockChain;
+import chainj.io.WriteTo;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -124,13 +127,13 @@ public class BlockHeader implements WriteTo {
         setHeight(height);
     }
 
-    Hash hash() throws IOException {
+    Hash hash() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeTo(buf);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
     }
 
-    Hash hashForSig() throws IOException {
+    Hash hashForSig() {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeForSigTo(buf);
         return new Hash(Sha3.Sum256(buf.toByteArray()));
@@ -180,33 +183,33 @@ public class BlockHeader implements WriteTo {
         }
     }
 
-    public void writeTo(OutputStream w) throws IOException {
+    public void writeTo(ByteArrayOutputStream w) {
         writeTo(w, Block.SerBlockHeader);
     }
 
-    private void writeForSigTo(OutputStream w) throws IOException {
+    private void writeForSigTo(ByteArrayOutputStream w) {
         writeTo(w, Block.SerBlockSigHash);
     }
 
-    void writeTo(OutputStream w, int serFlags) throws IOException {
+    void writeTo(ByteArrayOutputStream w, int serFlags) {
         w.write(serFlags);
         BlockChain.writeVarInt63(w, version);
         BlockChain.writeVarInt63(w, height);
-        w.write(previousBlockHash.getValue());
+        w.write(previousBlockHash.getValue(), 0, previousBlockHash.getValue().length);
         BlockChain.writeVarInt63(w, timestampMS);
         writeCommitment(w);
         writeWitness(w, serFlags);
     }
 
-    private void writeCommitment(OutputStream w) throws IOException {
+    private void writeCommitment(ByteArrayOutputStream w) {
         ByteArrayOutputStream commitment = new ByteArrayOutputStream();
-        commitment.write(transactionsMerkleRoot.getValue());
-        commitment.write(assetsMerkleRoot.getValue());
+        commitment.write(transactionsMerkleRoot.getValue(), 0, transactionsMerkleRoot.getValue().length);
+        commitment.write(assetsMerkleRoot.getValue(), 0, assetsMerkleRoot.getValue().length);
         BlockChain.writeVarStr31(commitment, consensusProgram);
         BlockChain.writeVarStr31(w, commitment.toByteArray());
     }
 
-    private void writeWitness(OutputStream w, int serFlags) throws IOException {
+    private void writeWitness(ByteArrayOutputStream w, int serFlags) {
         if ((serFlags & Block.SerBlockWitness) == Block.SerBlockWitness) {
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             BCUtil.writeDyadicArray(buf, witness);
