@@ -55,6 +55,10 @@ public class Transaction implements WriteTo {
         this.hash = hash;
     }
 
+    public long getVersion() {
+        return txData.getVersion();
+    }
+
     public byte[] getReferenceData() {
         return txData.getReferenceData();
     }

@@ -30,8 +30,16 @@ public class IssuanceWitness extends SpendWitness implements InputWitness {
         this.initialBlockHash = initialBlockHash;
     }
 
+    long getVmVersion() {
+        return vmVersion;
+    }
+
     void setVmVersion(long vmVersion) {
         this.vmVersion = vmVersion;
+    }
+
+    byte[] getIssuanceProgram() {
+        return issuanceProgram;
     }
 
     void setIssuanceProgram(byte[] issuanceProgram) {

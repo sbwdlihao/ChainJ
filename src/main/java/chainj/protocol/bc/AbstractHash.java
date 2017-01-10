@@ -9,9 +9,20 @@ import java.util.Arrays;
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
-public abstract class AbstractHash {
+abstract class AbstractHash {
 
-    byte[] value;
+    byte[] value = new byte[32];
+
+    AbstractHash(byte... bytes) {
+        if (bytes.length > 32) {
+            throw new IllegalArgumentException("bytes length must be 32 byte array");
+        }
+        value = new byte[32];
+        System.arraycopy(bytes, 0, value, 0, bytes.length);
+        if (bytes.length < 32) {
+            System.arraycopy(new byte[32 - bytes.length], 0, value, bytes.length, 32 - bytes.length);
+        }
+    }
 
     public byte[] getValue() {
         return value;

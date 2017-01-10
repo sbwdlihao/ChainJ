@@ -59,7 +59,7 @@ public class BlockHeader implements WriteTo {
         return timestampMS;
     }
 
-    byte[] getConsensusProgram() {
+    public byte[] getConsensusProgram() {
         return consensusProgram;
     }
 
@@ -68,12 +68,28 @@ public class BlockHeader implements WriteTo {
         this.consensusProgram = consensusProgram;
     }
 
+    byte[][] getWitness() {
+        return witness;
+    }
+
     private void setWitness(byte[][] witness) {
         Objects.requireNonNull(witness);
         this.witness = witness;
     }
 
     BlockHeader() {}
+
+    public BlockHeader(byte[] consensusProgram) {
+        setConsensusProgram(consensusProgram);
+    }
+
+    public BlockHeader(long timestampMS) {
+        this.timestampMS = timestampMS;
+    }
+
+    public BlockHeader(byte[][] witness) {
+        setWitness(witness);
+    }
 
     BlockHeader(long version, long height) {
         this.version = version;

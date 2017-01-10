@@ -11,7 +11,7 @@ import chainj.protocol.bc.TxInput;
 public class IssuanceInput extends TxInput {
 
     public byte[] getNonce() {
-        return ((IssuanceInputCommitment)inputWitness).getNonce();
+        return ((IssuanceInputCommitment)inputCommitment).getNonce();
     }
 
     public IssuanceInput(byte[] nonce, AssetID assetID, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments) {
@@ -30,6 +30,14 @@ public class IssuanceInput extends TxInput {
         setInputWitness(inputWitness);
     }
 
+    public IssuanceInput (long vmVersion) {
+        IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
+        IssuanceWitness inputWitness = new IssuanceWitness(inputCommitment);
+        inputWitness.setVmVersion(vmVersion);
+        setInputCommitment(inputCommitment);
+        setInputWitness(inputWitness);
+    }
+
     public IssuanceInput() {
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
         setInputCommitment(inputCommitment);
@@ -40,6 +48,16 @@ public class IssuanceInput extends TxInput {
     protected AssetAmount assetAmount() {
         IssuanceInputCommitment inputCommitment = (IssuanceInputCommitment)this.inputCommitment;
         return new AssetAmount(inputCommitment.getAssetID(), inputCommitment.getAmount());
+    }
+
+    @Override
+    public long vmVersion() {
+        return ((IssuanceWitness)inputWitness).getVmVersion();
+    }
+
+    @Override
+    public byte[] vmProgram() {
+        return ((IssuanceWitness)inputWitness).getIssuanceProgram();
     }
 
     @Override

@@ -16,15 +16,10 @@ public class AssetID extends AbstractHash {
 
     private static final long assetVersion = 1;
 
-    public AssetID(){
-        value = new byte[32];
-    }
+    public AssetID(){}
 
-    public AssetID(byte[] value) {
-        if (value == null || value.length != 32) {
-            throw new IllegalArgumentException("assert id must be 32 byte array");
-        }
-        this.value = value;
+    public AssetID(byte... bytes) {
+        super(bytes);
     }
 
     // ComputeAssetID computes the asset ID of the asset defined by

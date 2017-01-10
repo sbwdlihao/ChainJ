@@ -18,15 +18,10 @@ public class Hash extends AbstractHash{
         emptyHash = new Hash(Sha3.sum256(null));
     }
 
-    public Hash(){
-        value = new byte[32];
-    }
+    public Hash(){}
 
-    public Hash(byte[] value) {
-        if (value == null || value.length != 32) {
-            throw new IllegalArgumentException("hash must be 32 byte array");
-        }
-        this.value = value;
+    public Hash(byte... bytes) {
+        super(bytes);
     }
 
     public String toString() {

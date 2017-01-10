@@ -59,7 +59,7 @@ public class TxOutput {
 
     private TxOutput(){}
 
-    TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
+    public TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
         this.assetVersion = 1;
         setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
         setReferenceData(referenceData);

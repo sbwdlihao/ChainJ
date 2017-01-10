@@ -16,6 +16,10 @@ public class SpendWitness implements InputWitness {
 
     private byte[][] arguments = new byte[0][];
 
+    public byte[][] getArguments() {
+        return arguments;
+    }
+
     void setArguments(byte[][] arguments) {
         Objects.requireNonNull(arguments);
         this.arguments = arguments;

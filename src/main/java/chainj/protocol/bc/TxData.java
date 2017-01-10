@@ -32,6 +32,10 @@ public class TxData {
 
     private byte[] referenceData = new byte[0];
 
+    long getVersion() {
+        return version;
+    }
+
     TxInput[] getInputs() {
         return inputs;
     }
@@ -70,7 +74,7 @@ public class TxData {
     TxData() {
     }
 
-    TxData(TxInput[] inputs) {
+    public TxData(TxInput[] inputs) {
         setInputs(inputs);
     }
 
@@ -86,7 +90,7 @@ public class TxData {
         setReferenceData(referenceData);
     }
 
-    TxData(long version, TxInput[] inputs, TxOutput[] outputs, long minTime, long maxTime, byte[] referenceData) {
+    public TxData(long version, TxInput[] inputs, TxOutput[] outputs, long minTime, long maxTime, byte[] referenceData) {
         this.version = version;
         setInputs(inputs);
         setOutputs(outputs);

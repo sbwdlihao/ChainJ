@@ -27,7 +27,7 @@ public class Block implements WriteTo{
 
     private Transaction[] transactions = new Transaction[0];
 
-    BlockHeader getBlockHeader() {
+    public BlockHeader getBlockHeader() {
         return blockHeader;
     }
 
@@ -57,13 +57,17 @@ public class Block implements WriteTo{
         return blockHeader.getTimestampMS();
     }
 
+    public byte[][] getWitness() {
+        return blockHeader.getWitness();
+    }
+
     public Hash hashForSig() {
         return blockHeader.hashForSig();
     }
 
     public Block() {}
 
-    Block(BlockHeader blockHeader) {
+    public Block(BlockHeader blockHeader) {
         setBlockHeader(blockHeader);
     }
 

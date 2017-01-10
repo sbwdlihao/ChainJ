@@ -5,6 +5,7 @@ import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.txinput.EmptyTxInput;
 import chainj.protocol.bc.txinput.IssuanceInput;
 import chainj.protocol.bc.txinput.SpendInput;
+import chainj.protocol.bc.txinput.SpendWitness;
 import chainj.protocol.state.Output;
 
 import java.io.ByteArrayInputStream;
@@ -118,6 +119,21 @@ public abstract class TxInput {
 
     public Outpoint outpoint() {
         return new Outpoint();
+    }
+
+    public long vmVersion() {
+        return 0;
+    }
+
+    public byte[] vmProgram() {
+        return new byte[0];
+    }
+
+    public byte[][] arguments() {
+        if (inputWitness instanceof SpendWitness) {
+            return ((SpendWitness)inputWitness).getArguments();
+        }
+        return new byte[0][];
     }
 
     private static TxInput createTxInput(int icType) throws IOException {

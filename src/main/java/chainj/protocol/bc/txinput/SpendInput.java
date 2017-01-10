@@ -23,6 +23,14 @@ public class SpendInput extends TxInput {
         setInputWitness(inputWitness);
     }
 
+    public SpendInput(long vmVersion) {
+        SpendInputCommitment inputCommitment = new SpendInputCommitment(this);
+        SpendWitness inputWitness = new SpendWitness();
+        inputCommitment.setOutputCommitment(new OutputCommitment(vmVersion));
+        setInputCommitment(inputCommitment);
+        setInputWitness(inputWitness);
+    }
+
     public SpendInput(){
         setInputCommitment(new SpendInputCommitment(this));
         setInputWitness(new SpendWitness());
@@ -30,16 +38,26 @@ public class SpendInput extends TxInput {
 
     @Override
     protected AssetAmount assetAmount() {
-        return ((SpendInputCommitment)inputCommitment).getOutputCommitment().getAssetAmount();
+        return getOutputCommitment().getAssetAmount();
     }
 
     @Override
     protected byte[] controlProgram() {
-        return ((SpendInputCommitment)inputCommitment).getOutputCommitment().getControlProgram();
+        return getOutputCommitment().getControlProgram();
     }
 
     @Override
     public Outpoint outpoint() {
         return ((SpendInputCommitment)inputCommitment).getOutpoint();
+    }
+
+    @Override
+    public long vmVersion() {
+        return getOutputCommitment().getVmVersion();
+    }
+
+    @Override
+    public byte[] vmProgram() {
+        return controlProgram();
     }
 }

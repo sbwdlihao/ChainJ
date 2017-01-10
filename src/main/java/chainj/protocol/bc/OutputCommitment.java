@@ -29,7 +29,7 @@ public class OutputCommitment {
         this.assetAmount = assetAmount;
     }
 
-    long getVmVersion() {
+    public long getVmVersion() {
         return vmVersion;
     }
 
@@ -51,6 +51,10 @@ public class OutputCommitment {
     }
 
     public OutputCommitment() {}
+
+    public OutputCommitment(long vmVersion) {
+        this.vmVersion = vmVersion;
+    }
 
     public OutputCommitment(AssetAmount assetAmount, long vmVersion, byte[] controlProgram) {
         setAssetAmount(assetAmount);
