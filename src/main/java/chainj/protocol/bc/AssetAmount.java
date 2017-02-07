@@ -16,7 +16,7 @@ public class AssetAmount {
 
     private long amount;
 
-    AssetID getAssetID() {
+    public AssetID getAssetID() {
         return assetID;
     }
 
@@ -25,27 +25,28 @@ public class AssetAmount {
         this.assetID = assetID;
     }
 
-    long getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    AssetAmount() {}
+    public AssetAmount() {}
 
     public AssetAmount(AssetID assetID, long amount) {
         setAssetID(assetID);
         this.amount = amount;
     }
 
+    void readFrom(InputStream in) throws IOException {
+        readFrom(in, null);
+    }
+
     void readFrom(InputStream in, int[] nOut) throws IOException {
-        nOut[0] = in.read(assetID.getValue());
-        if (nOut[0] != assetID.getValue().length) {
-            throw new IOException("cannot readFull full assert id");
-        }
+        assetID.readFull(in, nOut);
         this.amount = BlockChain.readVarInt63(in, nOut);
     }
 
     void writeTo(ByteArrayOutputStream w) {
-        w.write(assetID.getValue(), 0, assetID.getValue().length);
+        assetID.write(w);
         BlockChain.writeVarInt63(w, amount);
     }
 

@@ -41,6 +41,10 @@ public class Block implements WriteTo{
         this.transactions = transactions;
     }
 
+    public long getVersion() {
+        return blockHeader.getVersion();
+    }
+
     public long getHeight() {
         return blockHeader.getHeight();
     }

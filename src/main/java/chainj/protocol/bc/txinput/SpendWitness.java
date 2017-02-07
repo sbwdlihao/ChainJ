@@ -1,6 +1,6 @@
 package chainj.protocol.bc.txinput;
 
-import chainj.protocol.bc.BCUtil;
+import chainj.encoding.blockchain.BlockChain;
 import chainj.protocol.bc.InputWitness;
 
 import java.io.ByteArrayOutputStream;
@@ -27,12 +27,12 @@ public class SpendWitness implements InputWitness {
 
     @Override
     public void readFrom(InputStream r) throws IOException {
-        setArguments(BCUtil.readDyadicArray(r));
+        setArguments(BlockChain.readVarStrList(r));
     }
 
     @Override
     public void writeTo(ByteArrayOutputStream w) {
-        BCUtil.writeDyadicArray(w, arguments);
+        BlockChain.writeVarStrList(w, arguments);
     }
 
     @Override

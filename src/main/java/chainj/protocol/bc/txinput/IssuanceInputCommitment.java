@@ -55,7 +55,7 @@ public class IssuanceInputCommitment implements InputCommitment {
     IssuanceInputCommitment(){}
 
     @Override
-    public int readFrom(InputStream r, long txVersion) throws IOException {
+    public int readFrom(InputStream r) throws IOException {
         int[] n = new int[1];
         setNonce(BlockChain.readVarStr31(r, n));
         assetID.readFull(r, n);
@@ -64,10 +64,10 @@ public class IssuanceInputCommitment implements InputCommitment {
     }
 
     @Override
-    public void writeTo(ByteArrayOutputStream w) {
+    public void writeTo(ByteArrayOutputStream w, int serFlags) {
         w.write(0); // issuance type
         BlockChain.writeVarStr31(w, nonce);
-        w.write(assetID.getValue(), 0, assetID.getValue().length);
+        assetID.write(w);
         BlockChain.writeVarInt63(w, amount);
     }
 

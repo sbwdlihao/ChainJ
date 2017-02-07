@@ -20,12 +20,12 @@ public class EmptyTxInput extends TxInput {
 
     class EmptyInputCommitment implements InputCommitment {
         @Override
-        public int readFrom(InputStream r, long txVersion) throws IOException {
+        public int readFrom(InputStream r) throws IOException {
             return 0;
         }
 
         @Override
-        public void writeTo(ByteArrayOutputStream w) {
+        public void writeTo(ByteArrayOutputStream w, int serFlags) {
         }
     }
 

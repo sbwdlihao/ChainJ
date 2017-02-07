@@ -2,6 +2,7 @@ package chainj.protocol.bc;
 
 import org.apache.commons.codec.binary.Hex;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -9,9 +10,9 @@ import java.util.Arrays;
 /**
  * Created by sbwdlihao on 24/12/2016.
  */
-abstract class AbstractHash {
+public abstract class AbstractHash {
 
-    byte[] value = new byte[32];
+    protected byte[] value = new byte[32];
 
     AbstractHash(byte... bytes) {
         if (bytes.length > 32) {
@@ -45,6 +46,10 @@ abstract class AbstractHash {
         if (n != value.length) {
             throw new IOException("read not full");
         }
+    }
+
+    public void write(ByteArrayOutputStream w) {
+        w.write(value, 0, value.length);
     }
 
     @Override

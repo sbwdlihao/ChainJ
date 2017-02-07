@@ -1,12 +1,11 @@
 package chainj.protocol.bc.txinput;
 
-import chainj.protocol.bc.InputCommitment;
-import chainj.protocol.bc.Outpoint;
-import chainj.protocol.bc.OutputCommitment;
+import chainj.protocol.bc.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -14,19 +13,22 @@ import java.util.Objects;
  */
 public class SpendInputCommitment implements InputCommitment {
 
-    private Outpoint outpoint = new Outpoint();
+    private OutputID outputID = new OutputID();
 
     private OutputCommitment outputCommitment = new OutputCommitment();
 
+    // The unconsumed suffix of the output commitment
+    private byte[] outputCommitmentSuffix = new byte[0];
+
     private SpendInput spendInput;
 
-    Outpoint getOutpoint() {
-        return outpoint;
+    OutputID getOutputID() {
+        return outputID;
     }
 
-    void setOutpoint(Outpoint outpoint) {
-        Objects.requireNonNull(outpoint);
-        this.outpoint = outpoint;
+    void setOutputID(OutputID outputID) {
+        Objects.requireNonNull(outputID);
+        this.outputID = outputID;
     }
 
     OutputCommitment getOutputCommitment() {
@@ -38,23 +40,33 @@ public class SpendInputCommitment implements InputCommitment {
         this.outputCommitment = outputCommitment;
     }
 
+    private void setOutputCommitmentSuffix(byte[] outputCommitmentSuffix) {
+        Objects.requireNonNull(outputCommitmentSuffix);
+        this.outputCommitmentSuffix = outputCommitmentSuffix;
+    }
+
     SpendInputCommitment(SpendInput spendInput) {
         this.spendInput = spendInput;
     }
 
     @Override
-    public int readFrom(InputStream r, long txVersion) throws IOException {
+    public int readFrom(InputStream r) throws IOException {
         int[] n = new int[1];
-        outpoint.readFrom(r, n);
-        outputCommitment.readFrom(r, txVersion, 1, n);
+        outputID.readFrom(r, n);
+        setOutputCommitmentSuffix(outputCommitment.readFrom(r, 1, n));
         return n[0];
     }
 
     @Override
-    public void writeTo(ByteArrayOutputStream w) {
+    public void writeTo(ByteArrayOutputStream w, int serFlags) {
         w.write(1); // spend type
-        outpoint.writeTo(w);
-        outputCommitment.writeTo(w, spendInput.getAssetVersion());
+        outputID.writeTo(w);
+        if ((serFlags & Transaction.SerPrevOut) != 0) {
+            outputCommitment.writeExtensibleString(w, outputCommitmentSuffix, spendInput.getAssetVersion());
+        } else {
+            Hash prevOutHash = outputCommitment.hash(outputCommitmentSuffix, spendInput.getAssetVersion());
+            prevOutHash.write(w);
+        }
     }
 
     @Override
@@ -64,14 +76,17 @@ public class SpendInputCommitment implements InputCommitment {
 
         SpendInputCommitment that = (SpendInputCommitment) o;
 
-        return (outpoint != null ? outpoint.equals(that.outpoint) : that.outpoint == null) &&
-                (outputCommitment != null ? outputCommitment.equals(that.outputCommitment) : that.outputCommitment == null);
+        if (outputID != null ? !outputID.equals(that.outputID) : that.outputID != null) return false;
+        if (outputCommitment != null ? !outputCommitment.equals(that.outputCommitment) : that.outputCommitment != null)
+            return false;
+        return Arrays.equals(outputCommitmentSuffix, that.outputCommitmentSuffix);
     }
 
     @Override
     public int hashCode() {
-        int result = outpoint != null ? outpoint.hashCode() : 0;
+        int result = outputID != null ? outputID.hashCode() : 0;
         result = 31 * result + (outputCommitment != null ? outputCommitment.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(outputCommitmentSuffix);
         return result;
     }
 }

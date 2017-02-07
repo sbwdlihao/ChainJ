@@ -31,6 +31,10 @@ public class Outpoint {
 
     public Outpoint() {}
 
+    public Outpoint(Hash hash) {
+        setHash(hash);
+    }
+
     public Outpoint(Hash hash, int index) {
         setHash(hash);
         this.index = index;

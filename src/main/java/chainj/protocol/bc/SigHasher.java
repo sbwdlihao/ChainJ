@@ -27,7 +27,7 @@ public class SigHasher {
         buf.write(txHash.getValue(), 0, txHash.getValue().length);
         BlockChain.writeVarInt31(buf, idx);
 
-        Hash outHash = Hash.emptyHash;
+        Hash outHash = Hash.emptyStringHash;
         if (txData.getInputs() != null && txData.getInputs().length > idx) {
             TxInput txInput = txData.getInputs()[idx];
             if (txInput instanceof SpendInput) {

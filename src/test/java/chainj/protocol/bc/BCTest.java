@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 /**
  * Created by sbwdlihao on 23/12/2016.
  */
-class BCTest {
+public class BCTest {
 
     static byte[] serialize(WriteTo wo) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -16,7 +16,7 @@ class BCTest {
         return buf.toByteArray();
     }
 
-    static Hash mustDecodeHash(String hex) {
+    public static Hash mustDecodeHash(String hex) {
         return new Hash(Hex.decode(hex));
     }
 }

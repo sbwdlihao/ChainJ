@@ -9,7 +9,7 @@ import java.io.InputStream;
  */
 public interface InputCommitment {
 
-    int readFrom(InputStream r, long txVersion) throws IOException;
+    int readFrom(InputStream r) throws IOException;
 
-    void writeTo(ByteArrayOutputStream w);
+    void writeTo(ByteArrayOutputStream w, int serFlags);
 }

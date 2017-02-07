@@ -8,7 +8,6 @@ import chainj.protocol.bc.txinput.SpendInput;
 import chainj.protocol.bc.txinput.SpendWitness;
 import chainj.protocol.state.Output;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +26,11 @@ public abstract class TxInput {
     private byte[] referenceData = new byte[0];
 
     protected InputWitness inputWitness;
+
+    // Unconsumed suffixes of the commitment and witness extensible
+    // strings.
+    private byte[] commitmentSuffix = new byte[0];
+    private byte[] witnessSuffix = new byte[0];
 
     public long getAssetVersion() {
         return assetVersion;
@@ -51,48 +55,63 @@ public abstract class TxInput {
         this.inputWitness = inputWitness;
     }
 
-    public static TxInput readFrom(InputStream r, long txVersion) throws IOException {
+    private void setCommitmentSuffix(byte[] commitmentSuffix) {
+        Objects.requireNonNull(commitmentSuffix);
+        this.commitmentSuffix = commitmentSuffix;
+    }
+
+    private void setWitnessSuffix(byte[] witnessSuffix) {
+        Objects.requireNonNull(witnessSuffix);
+        this.witnessSuffix = witnessSuffix;
+    }
+
+    static TxInput readFrom(InputStream r) throws IOException {
         TxInput txInput = new EmptyTxInput();
+        TxInput[] txInputs = new TxInput[1];
+        txInputs[0] = txInput;
         long assetVersion = BlockChain.readVarInt63(r);
-        byte[] inputCommitment = BlockChain.readVarStr31(r);
-        if (assetVersion == 1) {
-            ByteArrayInputStream icBuf = new ByteArrayInputStream(inputCommitment);
-            int icType = icBuf.read();
-            if (icType == -1) {
-                throw new IOException("read ic type null");
+        byte[] commitmentSuffix = BlockChain.readExtensibleString(r, buf -> {
+            if (assetVersion == 1) {
+                int icType = buf.read();
+                txInputs[0] = createTxInput(icType);
+                txInputs[0].inputCommitment.readFrom(buf);
             }
-            int bytesRead = 1;
-            txInput = createTxInput(icType);
-            bytesRead += txInput.inputCommitment.readFrom(icBuf, txVersion);
-            if (txVersion == 1 && bytesRead < inputCommitment.length) {
-                throw new IOException("unrecognized extra data in input commitment for transaction version 1");
-            }
-        }
+        });
+        txInput = txInputs[0];
+        txInput.setCommitmentSuffix(commitmentSuffix);
         txInput.assetVersion = assetVersion;
         txInput.setReferenceData(BlockChain.readVarStr31(r));
-        byte[] inputWitness = BlockChain.readVarStr31(r);
-        ByteArrayInputStream iwBuf = new ByteArrayInputStream(inputWitness);
-        txInput.inputWitness.readFrom(iwBuf);
+        txInput.setWitnessSuffix(BlockChain.readExtensibleString(r, buf -> txInputs[0].inputWitness.readFrom(buf)));
         return txInput;
     }
 
-    public void writeTo(ByteArrayOutputStream w, int serFlags) {
+    void writeTo(ByteArrayOutputStream w, int serFlags) {
         BlockChain.writeVarInt63(w, assetVersion);
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        inputCommitment.writeTo(buf);
-        BlockChain.writeVarStr31(w, buf.toByteArray());
+        BlockChain.writeExtensibleString(w, commitmentSuffix, buf -> {
+            writeInputCommitment(buf, serFlags);
+            return null;
+        });
         BlockChain.writeVarStr31(w, referenceData);
         if ((serFlags & Transaction.SerWitness) != 0) {
-            buf.reset();
-            inputWitness.writeTo(buf);
-            BlockChain.writeVarStr31(w, buf.toByteArray());
+            BlockChain.writeExtensibleString(w, witnessSuffix, buf -> {
+                if (assetVersion == 1) {
+                    inputWitness.writeTo(buf);
+                }
+                return null;
+            });
+        }
+    }
+
+    public void writeInputCommitment(ByteArrayOutputStream w, int serFlags) {
+        if (assetVersion == 1) {
+            inputCommitment.writeTo(w, serFlags);
         }
     }
 
     public Output prevOutput() {
         AssetAmount assetAmount = assetAmount();
         TxOutput txOutput = new TxOutput(assetAmount.getAssetID(), assetAmount.getAmount(), controlProgram(), new byte[0]);
-        return new Output(outpoint(), txOutput);
+        return new Output(spentOutputID(), txOutput);
     }
 
     Hash witnessHash() {
@@ -109,7 +128,7 @@ public abstract class TxInput {
         return assetAmount().getAmount();
     }
 
-    protected AssetAmount assetAmount() {
+    public AssetAmount assetAmount() {
         return new AssetAmount();
     }
 
@@ -117,8 +136,8 @@ public abstract class TxInput {
         return new byte[0];
     }
 
-    public Outpoint outpoint() {
-        return new Outpoint();
+    public OutputID spentOutputID() {
+        return new OutputID();
     }
 
     public long vmVersion() {

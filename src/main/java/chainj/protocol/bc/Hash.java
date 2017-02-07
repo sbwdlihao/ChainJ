@@ -11,11 +11,11 @@ import java.io.ByteArrayOutputStream;
  *
  * Hash represents a 256-bit hash.  By convention, Hash objects are typically passed as values, not as pointers.
  */
-public class Hash extends AbstractHash{
-    static final Hash emptyHash;
+public class Hash extends AbstractHash {
+    public static final Hash emptyStringHash;
 
     static {
-        emptyHash = new Hash(Sha3.sum256(null));
+        emptyStringHash = new Hash(Sha3.sum256(null));
     }
 
     public Hash(){}

@@ -14,25 +14,29 @@ public class IssuanceInput extends TxInput {
         return ((IssuanceInputCommitment)inputCommitment).getNonce();
     }
 
-    public IssuanceInput(byte[] nonce, AssetID assetID, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments) {
+    public IssuanceInput(byte[] nonce, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments) {}
+
+    public IssuanceInput(byte[] nonce, long amount, byte[] referenceData, Hash initialBlockHash, byte[] issuanceProgram, byte[][] arguments, byte[] assetDefinition) {
         assetVersion = 1;
+        long vmVersion = 1;
         setReferenceData(referenceData);
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
-        IssuanceWitness inputWitness = new IssuanceWitness(inputCommitment);
-        inputCommitment.setAmount(amount);
-        inputCommitment.setNonce(nonce);
-        inputCommitment.setAssetID(assetID);
-        inputWitness.setVmVersion(1);
+        IssuanceWitness inputWitness = new IssuanceWitness(this);
+        inputWitness.setVmVersion(vmVersion);
         inputWitness.setInitialBlockHash(initialBlockHash);
+        inputWitness.setAssetDefinition(assetDefinition);
         inputWitness.setIssuanceProgram(issuanceProgram);
         inputWitness.setArguments(arguments);
+        inputCommitment.setAmount(amount);
+        inputCommitment.setNonce(nonce);
+        inputCommitment.setAssetID(AssetID.computeAssetID(issuanceProgram, initialBlockHash, vmVersion, inputWitness.assetDefinitionHash()));
         setInputCommitment(inputCommitment);
         setInputWitness(inputWitness);
     }
 
     public IssuanceInput (long vmVersion) {
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
-        IssuanceWitness inputWitness = new IssuanceWitness(inputCommitment);
+        IssuanceWitness inputWitness = new IssuanceWitness(this);
         inputWitness.setVmVersion(vmVersion);
         setInputCommitment(inputCommitment);
         setInputWitness(inputWitness);
@@ -41,11 +45,15 @@ public class IssuanceInput extends TxInput {
     public IssuanceInput() {
         IssuanceInputCommitment inputCommitment = new IssuanceInputCommitment();
         setInputCommitment(inputCommitment);
-        setInputWitness(new IssuanceWitness(inputCommitment));
+        setInputWitness(new IssuanceWitness(this));
+    }
+
+    public Hash getInitialBlockHash() {
+        return ((IssuanceWitness)inputWitness).getInitialBlockHash();
     }
 
     @Override
-    protected AssetAmount assetAmount() {
+    public AssetAmount assetAmount() {
         IssuanceInputCommitment inputCommitment = (IssuanceInputCommitment)this.inputCommitment;
         return new AssetAmount(inputCommitment.getAssetID(), inputCommitment.getAmount());
     }

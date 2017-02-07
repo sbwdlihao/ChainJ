@@ -1,8 +1,8 @@
 package chainj.protocol.bc;
 
+import chainj.crypto.Sha3;
 import chainj.encoding.blockchain.BlockChain;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,23 +62,21 @@ public class OutputCommitment {
         setControlProgram(controlProgram);
     }
 
-    public void readFrom(InputStream r, long txVersion, long assetVersion) throws IOException {
-        readFrom(r, txVersion, assetVersion, null);
+    public byte[] readFrom(InputStream r, long assetVersion) throws IOException {
+        return readFrom(r, assetVersion, null);
     }
 
-    public void readFrom(InputStream r, long txVersion, long assetVersion, int[] nOut) throws IOException {
-        byte[] b = BlockChain.readVarStr31(r, nOut);
-        if (assetVersion != 1) {
-            return;
-        }
-        InputStream in = new ByteArrayInputStream(b);
-        int[] n1 = new int[1];
-        assetAmount.readFrom(in, n1);
-        vmVersion = BlockChain.readVarInt63(in, n1);
-        setControlProgram(BlockChain.readVarStr31(in, n1));
-        if (txVersion == 1 && n1[0] < b.length) {
-            throw new IOException("unrecognized extra data in output commitment for transaction version 1");
-        }
+    public byte[] readFrom(InputStream r, long assetVersion, int[] nOut) throws IOException {
+        return BlockChain.readExtensibleString(r, buf -> {
+            if (assetVersion == 1) {
+                assetAmount.readFrom(buf);
+                vmVersion = BlockChain.readVarInt63(buf);
+                if (vmVersion != 1) {
+                    throw new IOException(String.format("unrecognized VM version %d for asset version 1", vmVersion));
+                }
+                setControlProgram(BlockChain.readVarStr31(buf));
+            }
+        }, nOut);
     }
 
     public void writeTo(ByteArrayOutputStream w, long assetVersion) {
@@ -89,6 +87,30 @@ public class OutputCommitment {
             BlockChain.writeVarStr31(buf, controlProgram);
         }
         BlockChain.writeVarStr31(w, buf.toByteArray());
+    }
+
+    public void writeExtensibleString(ByteArrayOutputStream w, byte[] suffix, long assetVersion) {
+        BlockChain.writeExtensibleString(w, suffix, buf -> {
+            writeContents(buf, suffix, assetVersion);
+            return null;
+        });
+    }
+
+    private void writeContents(ByteArrayOutputStream buf, byte[] suffix, long assetVersion) {
+        if (assetVersion == 1) {
+            assetAmount.writeTo(buf);
+            BlockChain.writeVarInt63(buf, vmVersion);
+            BlockChain.writeVarStr31(buf, controlProgram);
+        }
+        if (suffix != null && suffix.length > 0) {
+            buf.write(suffix, 0, suffix.length);
+        }
+    }
+
+    public Hash hash(byte[] suffix, long assetVersion) {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        writeExtensibleString(buf, suffix, assetVersion);
+        return new Hash(Sha3.sum256(buf.toByteArray()));
     }
 
     @Override

@@ -17,14 +17,13 @@ public class TxOutput {
 
     private OutputCommitment outputCommitment = new OutputCommitment();
 
+    // Unconsumed suffixes of the commitment and witness extensible strings.
+    private byte[] commitmentSuffix = new byte[0];
+
     private byte[] referenceData = new byte[0];
 
     public long getAssetVersion() {
         return assetVersion;
-    }
-
-    public OutputCommitment getOutputCommitment() {
-        return outputCommitment;
     }
 
     private void setOutputCommitment(OutputCommitment outputCommitment) {
@@ -39,6 +38,10 @@ public class TxOutput {
     private void setReferenceData(byte[] referenceData) {
         Objects.requireNonNull(referenceData);
         this.referenceData = referenceData;
+    }
+
+    public AssetAmount getAssetAmount() {
+        return outputCommitment.getAssetAmount();
     }
 
     public AssetID getAssertID() {
@@ -59,20 +62,30 @@ public class TxOutput {
 
     private TxOutput(){}
 
+    public TxOutput(long assetVersion, OutputCommitment outputCommitment){
+        this.assetVersion = assetVersion;
+        setOutputCommitment(outputCommitment);
+    }
+
     public TxOutput(AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
         this.assetVersion = 1;
         setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
         setReferenceData(referenceData);
     }
 
-    Hash witnessHash() {
-        return Hash.emptyHash;
+    public TxOutput(long assetVersion, long amount, long vmVersion, byte[] controlProgram) {
+        this.assetVersion = assetVersion;
+        setOutputCommitment(new OutputCommitment(new AssetAmount(new AssetID(), amount), vmVersion, controlProgram));
     }
 
-    public static TxOutput readFrom(InputStream r, long txVersion) throws IOException {
+    Hash witnessHash() {
+        return Hash.emptyStringHash;
+    }
+
+    public static TxOutput readFrom(InputStream r) throws IOException {
         TxOutput txOutput = new TxOutput();
         txOutput.assetVersion = BlockChain.readVarInt63(r);
-        txOutput.outputCommitment.readFrom(r, txVersion, txOutput.assetVersion);
+        txOutput.commitmentSuffix = txOutput.outputCommitment.readFrom(r, txOutput.assetVersion);
         txOutput.setReferenceData(BlockChain.readVarStr31(r));
         // readFull and ignore the (empty) output witness
         BlockChain.readVarStr31(r);
@@ -83,11 +96,12 @@ public class TxOutput {
         BlockChain.writeVarInt63(w, assetVersion);
         writeCommitment(w);
         Transaction.writeRefData(w, referenceData, serFlags);
+        // write witness (empty in v1)
         BlockChain.writeVarStr31(w, null);
     }
 
     private void writeCommitment(ByteArrayOutputStream w) {
-        outputCommitment.writeTo(w, assetVersion);
+        outputCommitment.writeExtensibleString(w, commitmentSuffix, assetVersion);
     }
 
     @Override
@@ -97,15 +111,18 @@ public class TxOutput {
 
         TxOutput txOutput = (TxOutput) o;
 
-        return assetVersion == txOutput.assetVersion &&
-                (outputCommitment != null ? outputCommitment.equals(txOutput.outputCommitment) : txOutput.outputCommitment == null) &&
-                Arrays.equals(referenceData, txOutput.referenceData);
+        if (assetVersion != txOutput.assetVersion) return false;
+        if (outputCommitment != null ? !outputCommitment.equals(txOutput.outputCommitment) : txOutput.outputCommitment != null)
+            return false;
+        if (!Arrays.equals(commitmentSuffix, txOutput.commitmentSuffix)) return false;
+        return Arrays.equals(referenceData, txOutput.referenceData);
     }
 
     @Override
     public int hashCode() {
         int result = (int) (assetVersion ^ (assetVersion >>> 32));
         result = 31 * result + (outputCommitment != null ? outputCommitment.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(commitmentSuffix);
         result = 31 * result + Arrays.hashCode(referenceData);
         return result;
     }

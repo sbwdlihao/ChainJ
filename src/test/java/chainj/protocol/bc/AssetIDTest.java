@@ -20,10 +20,10 @@ public class AssetIDTest {
         AssetID assetID = AssetID.computeAssetID(issuanceScript, initialBlockHash, 1);
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         buf.write(initialBlockHash.getValue(), 0, initialBlockHash.getValue().length);
-        buf.write(0x01); // assetVersion
         buf.write(0x01); // vmVersion
         buf.write(0x01); // length of issuanceScript
         buf.write(issuanceScript, 0, issuanceScript.length);
+        buf.write(Hash.emptyStringHash.getValue(), 0, Hash.emptyStringHash.getValue().length);
         byte[] want = Sha3.sum256(buf.toByteArray());
         Assert.assertArrayEquals(want, assetID.getValue());
     }

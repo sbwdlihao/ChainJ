@@ -11,16 +11,26 @@ public class SpendInput extends TxInput {
         return ((SpendInputCommitment)inputCommitment).getOutputCommitment();
     }
 
-    public SpendInput(Hash txHash, int index, byte[][] arguments, AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
+    public SpendInput(Hash txHash, int index, byte[][] arguments, AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {}
+
+    public SpendInput(OutputID prevOutputID, byte[][] arguments, AssetID assetID, long amount, byte[] controlProgram, byte[] referenceData) {
         assetVersion = 1;
         setReferenceData(referenceData);
         SpendInputCommitment inputCommitment = new SpendInputCommitment(this);
         SpendWitness inputWitness = new SpendWitness();
-        inputCommitment.setOutpoint(new Outpoint(txHash, index));
+        inputCommitment.setOutputID(prevOutputID);
         inputCommitment.setOutputCommitment(new OutputCommitment(new AssetAmount(assetID, amount), 1, controlProgram));
         inputWitness.setArguments(arguments);
         setInputCommitment(inputCommitment);
         setInputWitness(inputWitness);
+    }
+
+    public SpendInput(long assetVersion, long amount, long vmVersion, byte[] controlProgram) {
+        this.assetVersion = assetVersion;
+        SpendInputCommitment inputCommitment = new SpendInputCommitment(this);
+        inputCommitment.setOutputCommitment(new OutputCommitment(new AssetAmount(new AssetID(), amount), vmVersion, controlProgram));
+        setInputCommitment(inputCommitment);
+        setInputWitness(new SpendWitness());
     }
 
     public SpendInput(long vmVersion) {
@@ -37,7 +47,7 @@ public class SpendInput extends TxInput {
     }
 
     @Override
-    protected AssetAmount assetAmount() {
+    public AssetAmount assetAmount() {
         return getOutputCommitment().getAssetAmount();
     }
 
@@ -47,8 +57,8 @@ public class SpendInput extends TxInput {
     }
 
     @Override
-    public Outpoint outpoint() {
-        return ((SpendInputCommitment)inputCommitment).getOutpoint();
+    public OutputID spentOutputID() {
+        return ((SpendInputCommitment)inputCommitment).getOutputID();
     }
 
     @Override
